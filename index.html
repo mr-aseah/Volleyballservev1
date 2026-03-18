@@ -185,7 +185,7 @@
       <section class="card">
         <div class="eyebrow">Volleyball</div>
         <h1>Serving Check</h1>
-        <p class="subtext">Observe the serve, think about what happened, then choose one thing to test next.</p>
+        <p class="subtext">Observe the serve, make sense of what happened, then choose one thing to work on next.</p>
 
         <div class="stack">
           <div class="field">
@@ -223,7 +223,8 @@
           </div>
 
           <div>
-            <div class="section-title">What will you test next?</div>
+            <div class="section-title">What do you want to improve?</div>
+            <div class="small muted" style="margin-bottom:8px;">Height = cross the net • Power = ball speed • Contact = clean hit • Control = placement</div>
             <div class="btn-grid-exp" id="experimentBtns"></div>
           </div>
         </div>
@@ -231,7 +232,7 @@
 
       <section class="card">
         <div class="eyebrow">Feedback Card</div>
-        <h2>What this might mean</h2>
+        <h2>What • So What • Now What</h2>
         <div id="feedbackArea" style="margin-top:18px;"></div>
       </section>
     </div>
@@ -242,7 +243,7 @@
       no_low_fast: {
         title: "Power is there — add more lift",
         meaning: "The serve has force, but the ball path is too flat to clear the net.",
-        experiment: "Keep the same hand speed, but try getting a little more under the ball.",
+        experiment: "Try getting more under the ball so the serve has enough lift to clear the net.",
         goal: "Try 3 serves with more lift while keeping the same power.",
         arc: "too low",
         force: "fast",
@@ -250,7 +251,7 @@
       no_low_medium: {
         title: "Lift needs adjusting",
         meaning: "The serve is not rising enough to clear the net.",
-        experiment: "Try contacting slightly more under the ball or changing where your hand meets the ball.",
+        experiment: "Try contacting slightly more under the ball so the serve rises more.",
         goal: "Try 3 serves that rise above the net.",
         arc: "too low",
         force: "medium",
@@ -258,7 +259,7 @@
       no_low_slow: {
         title: "More lift and force needed",
         meaning: "The serve is too flat and does not have enough force to travel well.",
-        experiment: "Try getting more under the ball and use a firmer hand action.",
+        experiment: "Try getting more under the ball first, then see if a firmer hit adds speed.",
         goal: "Try 3 serves with a higher arc and stronger contact.",
         arc: "too low",
         force: "slow",
@@ -266,7 +267,7 @@
       yes_good_fast: {
         title: "Strong, effective serve",
         meaning: "This serve has a useful mix of height and power.",
-        experiment: "See if you can repeat the same contact and follow-through consistently.",
+        experiment: "Try to repeat the same clean contact and ball path again.",
         goal: "Try to repeat 3 similar serves in a row.",
         arc: "good arc",
         force: "fast",
@@ -274,7 +275,7 @@
       yes_good_medium: {
         title: "Balanced serve",
         meaning: "The serve has enough height to clear the net and enough force to travel well.",
-        experiment: "Keep the same action and see if you can repeat it.",
+        experiment: "Try to repeat the same height and speed again.",
         goal: "Try to repeat 3 serves with the same arc and speed.",
         arc: "good arc",
         force: "medium",
@@ -282,7 +283,7 @@
       yes_good_slow: {
         title: "Safe serve — add more pressure",
         meaning: "The serve clears the net well, but it may be too easy to return.",
-        experiment: "Keep the same ball path, but try a quicker hand action.",
+        experiment: "Try to keep the same arc but make the ball travel faster.",
         goal: "Try 3 serves with the same arc but more speed.",
         arc: "good arc",
         force: "slow",
@@ -290,7 +291,7 @@
       yes_high_fast: {
         title: "Powerful but too high",
         meaning: "The serve clears the net, but the path rises more than needed.",
-        experiment: "Try contacting the ball a little less underneath while keeping your power.",
+        experiment: "Try a slightly flatter contact so the ball still clears but does not loop too high.",
         goal: "Try 3 serves with a lower, more attacking arc.",
         arc: "too high",
         force: "fast",
@@ -298,7 +299,7 @@
       yes_high_medium: {
         title: "Safe but looping",
         meaning: "The serve is clearing the net, but the arc is higher than needed.",
-        experiment: "Experiment with a slightly more forward contact point.",
+        experiment: "Try a slightly more forward contact so the ball travels on a lower, safer path.",
         goal: "Try 3 serves with a lower but still safe path.",
         arc: "too high",
         force: "medium",
@@ -306,7 +307,7 @@
       yes_high_slow: {
         title: "Very safe — but easy to receive",
         meaning: "The serve goes over, but it is slow and rises too much.",
-        experiment: "Try a firmer hand action or a contact point closer to the middle of the ball.",
+        experiment: "Try a firmer hit and cleaner contact so the ball travels faster.",
         goal: "Try 3 serves with a lower arc and a little more speed.",
         arc: "too high",
         force: "slow",
@@ -314,7 +315,7 @@
       no_high_fast: {
         title: "Power is there — timing or control needs work",
         meaning: "The serve has force, but the ball path is not controlled enough.",
-        experiment: "Try changing where you contact the ball or finishing the hand action more smoothly.",
+        experiment: "Try cleaner contact and aim the serve to a chosen area.",
         goal: "Try 3 serves with the same power but a more controlled path.",
         arc: "too high",
         force: "fast",
@@ -322,7 +323,7 @@
       no_high_medium: {
         title: "Ball path needs control",
         meaning: "The serve is not finding a useful path over the net.",
-        experiment: "Experiment with contact point and follow-through.",
+        experiment: "Try cleaner contact and choose a target area before serving.",
         goal: "Try 3 serves with a more controlled arc.",
         arc: "too high",
         force: "medium",
@@ -330,7 +331,7 @@
       no_high_slow: {
         title: "Try a clearer striking action",
         meaning: "The serve lacks both clear shape and enough force.",
-        experiment: "Try using a firmer hand action and a clearer follow-through.",
+        experiment: "Try cleaner contact first, then aim at a simple target area.",
         goal: "Try 3 serves with stronger contact and a more consistent path.",
         arc: "too high",
         force: "slow",
@@ -338,19 +339,17 @@
     };
 
     const reflectionPrompts = {
-      under: "What changed when you tried getting more under the ball?",
-      contact: "How did changing the contact point affect the ball path?",
-      knees: "Did using more knee bend help the serve travel better?",
-      hand: "What happened when your hand action became quicker or firmer?",
-      follow: "How did a fuller follow-through affect the serve?",
+      height: "What helped the ball rise enough to clear the net?",
+      power: "What made the ball travel faster this time?",
+      contact: "What helped you hit the ball more cleanly and solidly?",
+      control: "What helped the ball go closer to your target area?",
     };
 
     const experimentLabels = {
-      under: "Get more under the ball",
-      contact: "Change contact point",
-      knees: "Use more knee bend",
-      hand: "Change hand action",
-      follow: "Follow through more fully",
+      height: "More height",
+      power: "More power",
+      contact: "Better contact",
+      control: "More control",
     };
 
     const form = {
@@ -426,14 +425,14 @@ What happened:
 - Ball path: ${feedback.arc}
 - Ball speed: ${feedback.force}
 
-What this suggests:
+So what:
 ${feedback.meaning}
 
-What to try next:
+Now what:
 ${feedback.experiment}
 
-My experiment focus:
-${form.experiment ? experimentLabels[form.experiment] : '-'}
+My focus:
+${form.experiment ? experimentLabels[form.experiment] + (form.experiment === 'height' ? ' — get enough lift to cross the net' : form.experiment === 'power' ? ' — make the ball travel faster' : form.experiment === 'contact' ? ' — hit the ball more cleanly' : ' — place the ball to a target area') : '-'}
 
 Reflection:
 ${form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?'}
@@ -461,13 +460,12 @@ ${feedback.goal}`);
       const playerLine = `${form.playerName || 'Player'}${form.buddy ? ' • observed by ' + form.buddy : ''}`;
       const myExperiment = form.experiment
         ? {
-            under: 'I will test getting more under the ball.',
-            contact: 'I will test changing where I contact the ball.',
-            knees: 'I will test using more knee bend.',
-            hand: 'I will test a different hand action.',
-            follow: 'I will test a fuller follow-through.',
+            height: 'I will test how to give the serve more lift so it can clear the net.',
+            power: 'I will test how to make the ball travel faster after contact.',
+            contact: 'I will test how to meet the ball more cleanly with my hand.',
+            control: 'I will test how to place the ball closer to my target area.',
           }[form.experiment]
-        : 'Choose one thing to test next.';
+        : 'Choose one improvement focus.';
       const reflection = form.experiment
         ? reflectionPrompts[form.experiment]
         : 'What will you change on your next serve?';
@@ -493,23 +491,23 @@ ${feedback.goal}`);
 
         <div class="feedback-blocks">
           <div class="feedback-block">
-            <h3>What happened</h3>
+            <h3>What</h3>
             <p>${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was <strong>${feedback.arc}</strong> and the serve speed was <strong>${feedback.force}</strong>.</p>
           </div>
           <div class="feedback-block">
-            <h3>What this might mean</h3>
+            <h3>So what</h3>
             <p>${feedback.meaning}</p>
           </div>
           <div class="feedback-block">
-            <h3>What to try next</h3>
+            <h3>Now what</h3>
             <p>${feedback.experiment}</p>
           </div>
           <div class="feedback-block">
-            <h3>My experiment</h3>
+            <h3>My focus</h3>
             <p>${myExperiment}</p>
           </div>
           <div class="feedback-block">
-            <h3>Reflection</h3>
+            <h3>Reflection prompt</h3>
             <p>${reflection}</p>
           </div>
           <div class="feedback-block">
@@ -520,11 +518,28 @@ ${feedback.goal}`);
 
         <div class="actions">
           <button class="primary" id="emailBtn" ${form.email ? '' : 'disabled'}>Send to email</button>
+          <button class="primary" id="resetBtn" style="background:#e2e8f0;color:#0f172a;">Reset</button>
           ${form.sent ? '<div class="notice">Your email app has been opened with the feedback draft.</div>' : ''}
         </div>
       `;
 
       document.getElementById('emailBtn').addEventListener('click', handleEmail);
+      document.getElementById('resetBtn').addEventListener('click', resetForm);
+    }
+
+    function resetForm() {
+      form.playerName = '';
+      form.email = '';
+      form.buddy = '';
+      form.crossedNet = '';
+      form.arc = '';
+      form.speed = '';
+      form.experiment = '';
+      form.sent = false;
+      playerNameInput.value = '';
+      emailInput.value = '';
+      buddyInput.value = '';
+      render();
     }
 
     render();
