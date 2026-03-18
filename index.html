@@ -1,490 +1,533 @@
-export default function VolleyballServingCheck() {
-  const outcomeFeedback = {
-    no_low_fast: {
-      title: "Power is there — add more lift",
-      meaning:
-        "The serve has force, but the ball path is too flat to clear the net.",
-      experiment:
-        "Keep the same hand speed, but try getting a little more under the ball.",
-      goal: "Try 3 serves with more lift while keeping the same power.",
-      arc: "too low",
-      force: "fast",
-    },
-    no_low_medium: {
-      title: "Lift needs adjusting",
-      meaning:
-        "The serve is not rising enough to clear the net.",
-      experiment:
-        "Try contacting slightly more under the ball or changing where your hand meets the ball.",
-      goal: "Try 3 serves that rise above the net.",
-      arc: "too low",
-      force: "medium",
-    },
-    no_low_slow: {
-      title: "More lift and force needed",
-      meaning:
-        "The serve is too flat and does not have enough force to travel well.",
-      experiment:
-        "Try getting more under the ball and use a firmer hand action.",
-      goal: "Try 3 serves with a higher arc and stronger contact.",
-      arc: "too low",
-      force: "slow",
-    },
-    yes_good_fast: {
-      title: "Strong, effective serve",
-      meaning:
-        "This serve has a useful mix of height and power.",
-      experiment:
-        "See if you can repeat the same contact and follow-through consistently.",
-      goal: "Try to repeat 3 similar serves in a row.",
-      arc: "good arc",
-      force: "fast",
-    },
-    yes_good_medium: {
-      title: "Balanced serve",
-      meaning:
-        "The serve has enough height to clear the net and enough force to travel well.",
-      experiment:
-        "Keep the same action and see if you can repeat it.",
-      goal: "Try to repeat 3 serves with the same arc and speed.",
-      arc: "good arc",
-      force: "medium",
-    },
-    yes_good_slow: {
-      title: "Safe serve — add more pressure",
-      meaning:
-        "The serve clears the net well, but it may be too easy to return.",
-      experiment:
-        "Keep the same ball path, but try a quicker hand action.",
-      goal: "Try 3 serves with the same arc but more speed.",
-      arc: "good arc",
-      force: "slow",
-    },
-    yes_high_fast: {
-      title: "Powerful but too high",
-      meaning:
-        "The serve clears the net, but the path rises more than needed.",
-      experiment:
-        "Try contacting the ball a little less underneath while keeping your power.",
-      goal: "Try 3 serves with a lower, more attacking arc.",
-      arc: "too high",
-      force: "fast",
-    },
-    yes_high_medium: {
-      title: "Safe but looping",
-      meaning:
-        "The serve is clearing the net, but the arc is higher than needed.",
-      experiment:
-        "Experiment with a slightly more forward contact point.",
-      goal: "Try 3 serves with a lower but still safe path.",
-      arc: "too high",
-      force: "medium",
-    },
-    yes_high_slow: {
-      title: "Very safe — but easy to receive",
-      meaning:
-        "The serve goes over, but it is slow and rises too much.",
-      experiment:
-        "Try a firmer hand action or a contact point closer to the middle of the ball.",
-      goal: "Try 3 serves with a lower arc and a little more speed.",
-      arc: "too high",
-      force: "slow",
-    },
-    no_high_fast: {
-      title: "Power is there — timing or control needs work",
-      meaning:
-        "The serve has force, but the ball path is not controlled enough.",
-      experiment:
-        "Try changing where you contact the ball or finishing the hand action more smoothly.",
-      goal: "Try 3 serves with the same power but a more controlled path.",
-      arc: "too high",
-      force: "fast",
-    },
-    no_high_medium: {
-      title: "Ball path needs control",
-      meaning:
-        "The serve is not finding a useful path over the net.",
-      experiment:
-        "Experiment with contact point and follow-through.",
-      goal: "Try 3 serves with a more controlled arc.",
-      arc: "too high",
-      force: "medium",
-    },
-    no_high_slow: {
-      title: "Try a clearer striking action",
-      meaning:
-        "The serve lacks both clear shape and enough force.",
-      experiment:
-        "Try using a firmer hand action and a clearer follow-through.",
-      goal: "Try 3 serves with stronger contact and a more consistent path.",
-      arc: "too high",
-      force: "slow",
-    },
-  };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volleyball Serving Check</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --soft: #e2e8f0;
+      --accent: #0f172a;
+      --accent-2: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 980px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--soft);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 34px; margin-top: 6px; }
+    h2 { font-size: 28px; margin-top: 6px; }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    .subtext {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .stack { display: grid; gap: 18px; margin-top: 24px; }
+    .field label, .section-title {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      outline: none;
+      font-size: 15px;
+    }
+    input:focus {
+      border-color: #64748b;
+      box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+    }
+    .two-col {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 680px) {
+      .two-col { grid-template-columns: 1fr 1fr; }
+    }
+    .btn-grid-2, .btn-grid-3, .btn-grid-exp {
+      display: grid;
+      gap: 10px;
+    }
+    .btn-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .btn-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .btn-grid-exp { grid-template-columns: 1fr; }
+    @media (min-width: 680px) {
+      .btn-grid-exp { grid-template-columns: 1fr 1fr; }
+    }
+    .choice-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: #334155;
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+      text-align: center;
+    }
+    .choice-btn:hover { border-color: #94a3b8; }
+    .choice-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .choice-btn.left { text-align: left; }
+    .empty {
+      min-height: 220px;
+      border: 1px dashed var(--border);
+      background: #f8fafc;
+      border-radius: 24px;
+      padding: 20px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+    .feedback-top {
+      background: #f8fafc;
+      border-radius: 24px;
+      padding: 18px;
+    }
+    .mini-card {
+      background: white;
+      border: 1px solid var(--soft);
+      border-radius: 18px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .feedback-blocks {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .feedback-block p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .primary {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .notice {
+      background: #f1f5f9;
+      color: #334155;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+    }
+    svg { width: 100%; height: auto; display: block; }
+    .muted { color: var(--muted); }
+    .small { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="grid">
+      <section class="card">
+        <div class="eyebrow">Volleyball</div>
+        <h1>Serving Check</h1>
+        <p class="subtext">Observe the serve, think about what happened, then choose one thing to test next.</p>
 
-  const reflectionPrompts = {
-    under: "What changed when you tried getting more under the ball?",
-    contact: "How did changing the contact point affect the ball path?",
-    knees: "Did using more knee bend help the serve travel better?",
-    hand: "What happened when your hand action became quicker or firmer?",
-    follow: "How did a fuller follow-through affect the serve?",
-  };
-
-  const [form, setForm] = React.useState({
-    playerName: "",
-    email: "",
-    buddy: "",
-    crossedNet: "",
-    arc: "",
-    speed: "",
-    experiment: "",
-  });
-
-  const [sent, setSent] = React.useState(false);
-
-  const feedbackKey =
-    form.crossedNet && form.arc && form.speed
-      ? `${form.crossedNet}_${form.arc}_${form.speed}`
-      : null;
-
-  const feedback = feedbackKey ? outcomeFeedback[feedbackKey] : null;
-
-  const updateField = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setSent(false);
-  };
-
-  const handleEmail = () => {
-    if (!feedback || !form.email) return;
-
-    const subject = encodeURIComponent(
-      `${form.playerName || "Your"} Volleyball Serving Check`
-    );
-
-    const body = encodeURIComponent(
-      `Player: ${form.playerName || "-"}\nBuddy/Coach: ${form.buddy || "-"}\n\nWhat happened:\n- Crossed net: ${form.crossedNet === "yes" ? "Yes" : "No"}\n- Ball path: ${feedback.arc}\n- Ball speed: ${feedback.force}\n\nWhat this suggests:\n${feedback.meaning}\n\nWhat to try next:\n${feedback.experiment}\n\nMy experiment focus:\n${
-        form.experiment
-          ? {
-              under: "Get more under the ball",
-              contact: "Change contact point",
-              knees: "Use more knee bend",
-              hand: "Change hand action",
-              follow: "Follow through more fully",
-            }[form.experiment]
-          : "-"
-      }\n\nReflection:\n${
-        form.experiment
-          ? reflectionPrompts[form.experiment]
-          : "What will you change on your next serve?"
-      }\n\nNext goal:\n${feedback.goal}`
-    );
-
-    window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
-    setSent(true);
-  };
-
-  const OptionButton = ({ field, value, label }) => (
-    <button
-      type="button"
-      onClick={() => updateField(field, value)}
-      className={`rounded-2xl border px-4 py-3 text-sm font-medium transition $${""}`}
-    >
-      {label}
-    </button>
-  );
-
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <div className="mx-auto max-w-5xl grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-          <div className="mb-6">
-            <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Volleyball
-            </div>
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
-              Serving Check
-            </h1>
-            <p className="mt-2 text-slate-600">
-              Observe the serve, think about what happened, then choose one
-              thing to test next.
-            </p>
+        <div class="stack">
+          <div class="field">
+            <label for="playerName">Player Name</label>
+            <input id="playerName" placeholder="Enter player name" />
           </div>
 
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Player Name
-              </label>
-              <input
-                value={form.playerName}
-                onChange={(e) => updateField("playerName", e.target.value)}
-                className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
-                placeholder="Enter player name"
-              />
+          <div class="two-col">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="student@email.com" />
             </div>
+            <div class="field">
+              <label for="buddy">Buddy / Coach</label>
+              <input id="buddy" placeholder="Observer name" />
+            </div>
+          </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <div class="section-title">What happened?</div>
+            <div class="stack">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => updateField("email", e.target.value)}
-                  className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
-                  placeholder="student@email.com"
-                />
+                <div class="small muted" style="margin-bottom:8px;">Did the serve cross the net?</div>
+                <div class="btn-grid-2" id="crossedNetBtns"></div>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Buddy / Coach
-                </label>
-                <input
-                  value={form.buddy}
-                  onChange={(e) => updateField("buddy", e.target.value)}
-                  className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
-                  placeholder="Observer name"
-                />
+                <div class="small muted" style="margin-bottom:8px;">What was the ball path?</div>
+                <div class="btn-grid-3" id="arcBtns"></div>
               </div>
-            </div>
-
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-slate-800">
-                What happened?
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <div className="mb-2 text-sm text-slate-600">Did the serve cross the net?</div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      ["yes", "Yes"],
-                      ["no", "No"],
-                    ].map(([value, label]) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => updateField("crossedNet", value)}
-                        className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                          form.crossedNet === value
-                            ? "border-slate-900 bg-slate-900 text-white"
-                            : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-sm text-slate-600">What was the ball path?</div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      ["low", "Too low"],
-                      ["good", "Good arc"],
-                      ["high", "Too high"],
-                    ].map(([value, label]) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => updateField("arc", value)}
-                        className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                          form.arc === value
-                            ? "border-slate-900 bg-slate-900 text-white"
-                            : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-sm text-slate-600">How fast was the serve?</div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      ["slow", "Slow"],
-                      ["medium", "Medium"],
-                      ["fast", "Fast"],
-                    ].map(([value, label]) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => updateField("speed", value)}
-                        className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                          form.speed === value
-                            ? "border-slate-900 bg-slate-900 text-white"
-                            : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-slate-800">
-                What will you test next?
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {[
-                  ["under", "Get more under the ball"],
-                  ["contact", "Change contact point"],
-                  ["knees", "Use more knee bend"],
-                  ["hand", "Change hand action"],
-                  ["follow", "Follow through more fully"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => updateField("experiment", value)}
-                    className={`rounded-2xl border px-4 py-3 text-sm font-medium text-left transition ${
-                      form.experiment === value
-                        ? "border-slate-900 bg-slate-900 text-white"
-                        : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div>
+                <div class="small muted" style="margin-bottom:8px;">How fast was the serve?</div>
+                <div class="btn-grid-3" id="speedBtns"></div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-200 flex flex-col">
-          <div className="mb-4">
-            <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Feedback Card
-            </div>
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">
-              What this might mean
-            </h2>
+          <div>
+            <div class="section-title">What will you test next?</div>
+            <div class="btn-grid-exp" id="experimentBtns"></div>
           </div>
-
-          {!feedback ? (
-            <div className="flex-1 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-slate-500">
-              Select the serve outcome to generate feedback.
-            </div>
-          ) : (
-            <div className="flex-1 space-y-5">
-              <div className="rounded-3xl bg-slate-50 p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <div className="text-lg font-semibold text-slate-900">{feedback.title}</div>
-                    <div className="text-sm text-slate-600">
-                      {form.playerName || "Player"}
-                      {form.buddy ? ` • observed by ${form.buddy}` : ""}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-white p-4 border border-slate-200">
-                  <div className="mb-2 text-sm font-semibold text-slate-700">Simple visual</div>
-                  <div className="h-40 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden">
-                    <svg viewBox="0 0 320 160" className="h-full w-full">
-                      <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" strokeWidth="3" />
-                      <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" strokeWidth="4" />
-                      <line x1="140" y1="60" x2="180" y2="60" stroke="#0f172a" strokeWidth="3" />
-                      {form.arc === "low" && (
-                        <path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-                      )}
-                      {form.arc === "good" && (
-                        <path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-                      )}
-                      {form.arc === "high" && (
-                        <path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-                      )}
-                      <circle cx="40" cy="115" r="6" fill="#0f172a" />
-                      <line x1="40" y1="145" x2={form.speed === "slow" ? "95" : form.speed === "medium" ? "125" : "160"} y2="145" stroke="#334155" strokeWidth="6" strokeLinecap="round" />
-                      <polygon
-                        points={
-                          form.speed === "slow"
-                            ? "95,145 84,139 84,151"
-                            : form.speed === "medium"
-                            ? "125,145 114,139 114,151"
-                            : "160,145 149,139 149,151"
-                        }
-                        fill="#334155"
-                      />
-                      <text x="38" y="156" fontSize="11" fill="#475569">force</text>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">What happened</div>
-                  <p className="mt-1 text-slate-600">
-                    {form.crossedNet === "yes" ? "The serve crossed the net." : "The serve did not cross the net."} The ball path was <span className="font-medium text-slate-900">{feedback.arc}</span> and the serve speed was <span className="font-medium text-slate-900">{feedback.force}</span>.
-                  </p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">What this might mean</div>
-                  <p className="mt-1 text-slate-600">{feedback.meaning}</p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">What to try next</div>
-                  <p className="mt-1 text-slate-600">{feedback.experiment}</p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">My experiment</div>
-                  <p className="mt-1 text-slate-600">
-                    {form.experiment
-                      ? {
-                          under: "I will test getting more under the ball.",
-                          contact: "I will test changing where I contact the ball.",
-                          knees: "I will test using more knee bend.",
-                          hand: "I will test a different hand action.",
-                          follow: "I will test a fuller follow-through.",
-                        }[form.experiment]
-                      : "Choose one thing to test next."}
-                  </p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">Reflection</div>
-                  <p className="mt-1 text-slate-600">
-                    {form.experiment
-                      ? reflectionPrompts[form.experiment]
-                      : "What will you change on your next serve?"}
-                  </p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">Next goal</div>
-                  <p className="mt-1 text-slate-600">{feedback.goal}</p>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={handleEmail}
-                  disabled={!form.email}
-                  className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-40"
-                >
-                  Send to email
-                </button>
-                {sent && (
-                  <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                    Your email app has been opened with the feedback draft.
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">Feedback Card</div>
+        <h2>What this might mean</h2>
+        <div id="feedbackArea" style="margin-top:18px;"></div>
+      </section>
     </div>
-  );
-}
+  </div>
+
+  <script>
+    const outcomeFeedback = {
+      no_low_fast: {
+        title: "Power is there — add more lift",
+        meaning: "The serve has force, but the ball path is too flat to clear the net.",
+        experiment: "Keep the same hand speed, but try getting a little more under the ball.",
+        goal: "Try 3 serves with more lift while keeping the same power.",
+        arc: "too low",
+        force: "fast",
+      },
+      no_low_medium: {
+        title: "Lift needs adjusting",
+        meaning: "The serve is not rising enough to clear the net.",
+        experiment: "Try contacting slightly more under the ball or changing where your hand meets the ball.",
+        goal: "Try 3 serves that rise above the net.",
+        arc: "too low",
+        force: "medium",
+      },
+      no_low_slow: {
+        title: "More lift and force needed",
+        meaning: "The serve is too flat and does not have enough force to travel well.",
+        experiment: "Try getting more under the ball and use a firmer hand action.",
+        goal: "Try 3 serves with a higher arc and stronger contact.",
+        arc: "too low",
+        force: "slow",
+      },
+      yes_good_fast: {
+        title: "Strong, effective serve",
+        meaning: "This serve has a useful mix of height and power.",
+        experiment: "See if you can repeat the same contact and follow-through consistently.",
+        goal: "Try to repeat 3 similar serves in a row.",
+        arc: "good arc",
+        force: "fast",
+      },
+      yes_good_medium: {
+        title: "Balanced serve",
+        meaning: "The serve has enough height to clear the net and enough force to travel well.",
+        experiment: "Keep the same action and see if you can repeat it.",
+        goal: "Try to repeat 3 serves with the same arc and speed.",
+        arc: "good arc",
+        force: "medium",
+      },
+      yes_good_slow: {
+        title: "Safe serve — add more pressure",
+        meaning: "The serve clears the net well, but it may be too easy to return.",
+        experiment: "Keep the same ball path, but try a quicker hand action.",
+        goal: "Try 3 serves with the same arc but more speed.",
+        arc: "good arc",
+        force: "slow",
+      },
+      yes_high_fast: {
+        title: "Powerful but too high",
+        meaning: "The serve clears the net, but the path rises more than needed.",
+        experiment: "Try contacting the ball a little less underneath while keeping your power.",
+        goal: "Try 3 serves with a lower, more attacking arc.",
+        arc: "too high",
+        force: "fast",
+      },
+      yes_high_medium: {
+        title: "Safe but looping",
+        meaning: "The serve is clearing the net, but the arc is higher than needed.",
+        experiment: "Experiment with a slightly more forward contact point.",
+        goal: "Try 3 serves with a lower but still safe path.",
+        arc: "too high",
+        force: "medium",
+      },
+      yes_high_slow: {
+        title: "Very safe — but easy to receive",
+        meaning: "The serve goes over, but it is slow and rises too much.",
+        experiment: "Try a firmer hand action or a contact point closer to the middle of the ball.",
+        goal: "Try 3 serves with a lower arc and a little more speed.",
+        arc: "too high",
+        force: "slow",
+      },
+      no_high_fast: {
+        title: "Power is there — timing or control needs work",
+        meaning: "The serve has force, but the ball path is not controlled enough.",
+        experiment: "Try changing where you contact the ball or finishing the hand action more smoothly.",
+        goal: "Try 3 serves with the same power but a more controlled path.",
+        arc: "too high",
+        force: "fast",
+      },
+      no_high_medium: {
+        title: "Ball path needs control",
+        meaning: "The serve is not finding a useful path over the net.",
+        experiment: "Experiment with contact point and follow-through.",
+        goal: "Try 3 serves with a more controlled arc.",
+        arc: "too high",
+        force: "medium",
+      },
+      no_high_slow: {
+        title: "Try a clearer striking action",
+        meaning: "The serve lacks both clear shape and enough force.",
+        experiment: "Try using a firmer hand action and a clearer follow-through.",
+        goal: "Try 3 serves with stronger contact and a more consistent path.",
+        arc: "too high",
+        force: "slow",
+      },
+    };
+
+    const reflectionPrompts = {
+      under: "What changed when you tried getting more under the ball?",
+      contact: "How did changing the contact point affect the ball path?",
+      knees: "Did using more knee bend help the serve travel better?",
+      hand: "What happened when your hand action became quicker or firmer?",
+      follow: "How did a fuller follow-through affect the serve?",
+    };
+
+    const experimentLabels = {
+      under: "Get more under the ball",
+      contact: "Change contact point",
+      knees: "Use more knee bend",
+      hand: "Change hand action",
+      follow: "Follow through more fully",
+    };
+
+    const form = {
+      playerName: "",
+      email: "",
+      buddy: "",
+      crossedNet: "",
+      arc: "",
+      speed: "",
+      experiment: "",
+      sent: false,
+    };
+
+    const crossedNetOptions = [["yes", "Yes"], ["no", "No"]];
+    const arcOptions = [["low", "Too low"], ["good", "Good arc"], ["high", "Too high"]];
+    const speedOptions = [["slow", "Slow"], ["medium", "Medium"], ["fast", "Fast"]];
+    const experimentOptions = Object.entries(experimentLabels);
+
+    const playerNameInput = document.getElementById('playerName');
+    const emailInput = document.getElementById('email');
+    const buddyInput = document.getElementById('buddy');
+    const feedbackArea = document.getElementById('feedbackArea');
+
+    playerNameInput.addEventListener('input', e => { form.playerName = e.target.value; render(); });
+    emailInput.addEventListener('input', e => { form.email = e.target.value; form.sent = false; render(); });
+    buddyInput.addEventListener('input', e => { form.buddy = e.target.value; render(); });
+
+    function makeButtons(containerId, options, field, leftAlign = false) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      options.forEach(([value, label]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn' + (leftAlign ? ' left' : '') + (form[field] === value ? ' active' : '');
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+          form[field] = value;
+          form.sent = false;
+          render();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function getFeedback() {
+      if (!form.crossedNet || !form.arc || !form.speed) return null;
+      return outcomeFeedback[`${form.crossedNet}_${form.arc}_${form.speed}`] || null;
+    }
+
+    function getVisualPath() {
+      if (form.arc === 'low') return '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      if (form.arc === 'good') return '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      if (form.arc === 'high') return '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      return '';
+    }
+
+    function getForceLine() {
+      if (form.speed === 'slow') return { x2: 95, arrow: '95,145 84,139 84,151' };
+      if (form.speed === 'medium') return { x2: 125, arrow: '125,145 114,139 114,151' };
+      return { x2: 160, arrow: '160,145 149,139 149,151' };
+    }
+
+    function handleEmail() {
+      const feedback = getFeedback();
+      if (!feedback || !form.email) return;
+      const subject = encodeURIComponent(`${form.playerName || 'Your'} Volleyball Serving Check`);
+      const body = encodeURIComponent(
+`Player: ${form.playerName || '-'}
+Buddy/Coach: ${form.buddy || '-'}
+
+What happened:
+- Crossed net: ${form.crossedNet === 'yes' ? 'Yes' : 'No'}
+- Ball path: ${feedback.arc}
+- Ball speed: ${feedback.force}
+
+What this suggests:
+${feedback.meaning}
+
+What to try next:
+${feedback.experiment}
+
+My experiment focus:
+${form.experiment ? experimentLabels[form.experiment] : '-'}
+
+Reflection:
+${form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?'}
+
+Next goal:
+${feedback.goal}`);
+      window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
+      form.sent = true;
+      render();
+    }
+
+    function render() {
+      makeButtons('crossedNetBtns', crossedNetOptions, 'crossedNet');
+      makeButtons('arcBtns', arcOptions, 'arc');
+      makeButtons('speedBtns', speedOptions, 'speed');
+      makeButtons('experimentBtns', experimentOptions, 'experiment', true);
+
+      const feedback = getFeedback();
+      if (!feedback) {
+        feedbackArea.innerHTML = '<div class="empty">Select the serve outcome to generate feedback.</div>';
+        return;
+      }
+
+      const force = getForceLine();
+      const playerLine = `${form.playerName || 'Player'}${form.buddy ? ' • observed by ' + form.buddy : ''}`;
+      const myExperiment = form.experiment
+        ? {
+            under: 'I will test getting more under the ball.',
+            contact: 'I will test changing where I contact the ball.',
+            knees: 'I will test using more knee bend.',
+            hand: 'I will test a different hand action.',
+            follow: 'I will test a fuller follow-through.',
+          }[form.experiment]
+        : 'Choose one thing to test next.';
+      const reflection = form.experiment
+        ? reflectionPrompts[form.experiment]
+        : 'What will you change on your next serve?';
+
+      feedbackArea.innerHTML = `
+        <div class="feedback-top">
+          <div style="font-size:22px;font-weight:700;">${feedback.title}</div>
+          <div class="small muted" style="margin-top:4px;">${playerLine}</div>
+          <div class="mini-card">
+            <div class="section-title" style="margin-bottom:10px;">Simple visual</div>
+            <svg viewBox="0 0 320 160" aria-label="Serve path visual">
+              <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" stroke-width="3" />
+              <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" stroke-width="4" />
+              <line x1="140" y1="60" x2="180" y2="60" stroke="#0f172a" stroke-width="3" />
+              ${getVisualPath()}
+              <circle cx="40" cy="115" r="6" fill="#0f172a" />
+              <line x1="40" y1="145" x2="${force.x2}" y2="145" stroke="#334155" stroke-width="6" stroke-linecap="round" />
+              <polygon points="${force.arrow}" fill="#334155"></polygon>
+              <text x="38" y="156" font-size="11" fill="#475569">force</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="feedback-blocks">
+          <div class="feedback-block">
+            <h3>What happened</h3>
+            <p>${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was <strong>${feedback.arc}</strong> and the serve speed was <strong>${feedback.force}</strong>.</p>
+          </div>
+          <div class="feedback-block">
+            <h3>What this might mean</h3>
+            <p>${feedback.meaning}</p>
+          </div>
+          <div class="feedback-block">
+            <h3>What to try next</h3>
+            <p>${feedback.experiment}</p>
+          </div>
+          <div class="feedback-block">
+            <h3>My experiment</h3>
+            <p>${myExperiment}</p>
+          </div>
+          <div class="feedback-block">
+            <h3>Reflection</h3>
+            <p>${reflection}</p>
+          </div>
+          <div class="feedback-block">
+            <h3>Next goal</h3>
+            <p>${feedback.goal}</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="emailBtn" ${form.email ? '' : 'disabled'}>Send to email</button>
+          ${form.sent ? '<div class="notice">Your email app has been opened with the feedback draft.</div>' : ''}
+        </div>
+      `;
+
+      document.getElementById('emailBtn').addEventListener('click', handleEmail);
+    }
+
+    render();
+  </script>
+</body>
+</html>
