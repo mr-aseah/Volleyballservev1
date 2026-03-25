@@ -267,7 +267,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgIRqb_tm98xhsRAz2ccQWlAdWyk5306RWUIdKWkUwmEoFGTs7vv1WPq2w9FBAwtIgyA/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5wJUDSacU1NwtcGsUZgQNmRC2G0yYD-sNWtwbI3Pi9WhGCprWYHKyTavbydC4sSGqGQ/exec";
 
     const outcomeFeedback = {
       no_low_fast: {
@@ -395,6 +395,8 @@
       submissionMessage: "",
       lastSubmissionId: "",
       openedDraftAfterSubmit: false,
+      lastEmailPromptedAt: "",
+      submitPending: false,
     };
 
     const crossedNetOptions = [["yes", "Yes"], ["no", "No"]];
@@ -410,6 +412,83 @@
     playerNameInput.addEventListener('input', e => { form.playerName = e.target.value; render(); });
     emailInput.addEventListener('input', e => { form.email = e.target.value; form.sent = false; render(); });
     buddyInput.addEventListener('input', e => { form.buddy = e.target.value; render(); });
+
+
+    function getTodayString() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getDeviceType() {
+      const ua = navigator.userAgent || '';
+      if (/CrOS/i.test(ua)) return 'chromebook';
+      if (/Android/i.test(ua)) return 'android';
+      if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+      if (/Windows/i.test(ua)) return 'windows';
+      if (/Macintosh|Mac OS X/i.test(ua)) return 'mac';
+      return 'other';
+    }
+
+    function buildWhatText(feedback) {
+      return `${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${feedback.arc} and the serve speed was ${feedback.force}.`;
+    }
+
+    function getPressureLevel() {
+      return { slow: 'low', medium: 'medium', fast: 'high' }[form.speed] || '';
+    }
+
+    async function getScreenshotDataUrl() {
+      const element = document.getElementById('assessmentCapture');
+      if (!element || typeof html2canvas === 'undefined') return '';
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2
+      });
+      return canvas.toDataURL('image/jpeg', 0.95);
+    }
+
+    function submitViaHiddenForm(payload) {
+      let iframe = document.getElementById('submitFrame');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'submitFrame';
+        iframe.name = 'submitFrame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+
+      const oldForm = document.getElementById('hiddenSubmitForm');
+      if (oldForm) oldForm.remove();
+
+      const formEl = document.createElement('form');
+      formEl.id = 'hiddenSubmitForm';
+      formEl.method = 'POST';
+      formEl.action = APPS_SCRIPT_URL;
+      formEl.target = 'submitFrame';
+      formEl.style.display = 'none';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'payload';
+      input.value = JSON.stringify(payload);
+      formEl.appendChild(input);
+
+      document.body.appendChild(formEl);
+
+      iframe.onload = () => {
+        if (!form.submitPending) return;
+        form.submitPending = false;
+        form.submitted = true;
+        form.lastSubmissionId = payload.clientSubmissionId || '';
+        form.submissionMessage = 'Feedback submitted successfully.';
+        render();
+      };
+
+      formEl.submit();
+    }
 
     function makeButtons(containerId, options, field, leftAlign = false) {
       const container = document.getElementById(containerId);
@@ -471,27 +550,40 @@ Next goal:
 ${feedback.goal}`;
     }
 
-    function buildPayload() {
+    function buildPayload(screenshotDataUrl = '') {
       const feedback = getFeedback();
       return {
-        submissionId: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-        timestamp: new Date().toISOString(),
+        clientSubmissionId: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        lessonDate: getTodayString(),
         lessonUnit: 'Volleyball Serving Check',
-        playerName: form.playerName || '',
-        playerEmail: form.email || '',
-        buddyName: form.buddy || '',
-        crossedNet: form.crossedNet || '',
-        arc: form.arc || '',
-        speed: form.speed || '',
-        focusArea: form.experiment || '',
-        focusLabel: form.experiment ? experimentLabels[form.experiment] : '',
-        title: feedback ? feedback.title : '',
-        meaning: feedback ? feedback.meaning : '',
-        experiment: feedback ? feedback.experiment : '',
-        goal: feedback ? feedback.goal : '',
+        className: '',
+        performerName: form.playerName || '',
+        performerEmail: form.email || '',
+        observerName: form.buddy || '',
+        observerEmail: '',
+        relationship: 'peer',
+        attemptNo: 1,
+        performanceTitle: feedback ? feedback.title : '',
+        ballCrossedNet: form.crossedNet || '',
+        arcQuality: form.arc || '',
+        serveSpeed: form.speed || '',
+        pressureLevel: getPressureLevel(),
+        whatText: feedback ? buildWhatText(feedback) : '',
+        soWhatText: feedback ? feedback.meaning : '',
+        nowWhatText: feedback ? feedback.experiment : '',
+        focusText: form.experiment ? experimentLabels[form.experiment] : '',
         reflectionPrompt: form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?',
-        emailDraftOpened: form.sent ? 'YES' : 'NO',
-        userAgent: navigator.userAgent
+        nextGoal: feedback ? feedback.goal : '',
+        emailDraftOpened: form.sent,
+        studentEmailPromptedAt: form.lastEmailPromptedAt || '',
+        cycleTag: '',
+        lessonNumber: '',
+        term: '',
+        week: '',
+        sourceApp: 'volleyball-serving-check-v1',
+        deviceType: getDeviceType(),
+        screenshotDataUrl: screenshotDataUrl,
+        notes: ''
       };
     }
 
@@ -529,30 +621,21 @@ ${feedback.goal}`;
       }
 
       try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
-          body: JSON.stringify(buildPayload())
-        });
+        form.submitPending = true;
+        form.submitted = false;
+        form.submissionMessage = 'Submitting feedback...';
+        form.lastSubmissionId = '';
+        render();
 
-        const result = await response.json();
-
-        if (result.ok) {
-          form.submitted = true;
-          form.lastSubmissionId = result.submissionId || '';
-          form.submissionMessage = result.message || 'Feedback submitted successfully.';
-        } else {
-          form.submitted = false;
-          form.submissionMessage = result.error || 'Submission failed.';
-        }
+        const screenshotDataUrl = await getScreenshotDataUrl();
+        const payload = buildPayload(screenshotDataUrl);
+        submitViaHiddenForm(payload);
       } catch (error) {
+        form.submitPending = false;
         form.submitted = false;
         form.submissionMessage = error.message || 'Submission error.';
+        render();
       }
-
-      render();
     }
 
     function handleEmail() {
@@ -562,6 +645,7 @@ ${feedback.goal}`;
       const body = encodeURIComponent(buildEmailBody(feedback));
       window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
       form.sent = true;
+      form.lastEmailPromptedAt = new Date().toISOString();
       form.openedDraftAfterSubmit = form.submitted;
       render();
     }
@@ -669,6 +753,8 @@ ${feedback.goal}`;
       form.submissionMessage = '';
       form.lastSubmissionId = '';
       form.openedDraftAfterSubmit = false;
+      form.lastEmailPromptedAt = '';
+      form.submitPending = false;
       playerNameInput.value = '';
       emailInput.value = '';
       buddyInput.value = '';
