@@ -204,6 +204,79 @@
     svg { width: 100%; height: auto; display: block; }
     .muted { color: var(--muted); }
     .small { font-size: 14px; }
+
+    .try-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .try-card {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 110px;
+    }
+    .try-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(15,23,42,0.08);
+    }
+    .try-card.saved {
+      background: #f8fafc;
+    }
+    .try-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #334155;
+      font-weight: 700;
+    }
+    .try-summary {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .tiny-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .tiny-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .tiny-btn.primary-mini {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .helper-box {
+      background: #f8fafc;
+      color: #334155;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
   </style>
 </head>
 <body>
@@ -213,6 +286,9 @@
         <div class="eyebrow">Volleyball</div>
         <h1>Serving Check</h1>
         <p class="subtext">Observe the serve, make sense of what happened, then choose one thing to work on next.</p>
+
+        <div class="helper-box">Use up to 3 tries. Save each try after feedback is shown, then compare the tries before downloading or emailing.</div>
+        <div class="try-strip" id="tryStrip"></div>
 
         <div class="stack">
           <div class="field">
@@ -397,6 +473,9 @@
       openedDraftAfterSubmit: false,
       lastEmailPromptedAt: "",
       submitPending: false,
+      currentTry: 1,
+      selectedTryForCapture: 1,
+      tries: [null, null, null],
     };
 
     const crossedNetOptions = [["yes", "Yes"], ["no", "No"]];
@@ -412,6 +491,132 @@
     playerNameInput.addEventListener('input', e => { form.playerName = e.target.value; render(); });
     emailInput.addEventListener('input', e => { form.email = e.target.value; form.sent = false; render(); });
     buddyInput.addEventListener('input', e => { form.buddy = e.target.value; render(); });
+
+
+    function cloneCurrentState() {
+      const feedback = getFeedback();
+      if (!feedback) return null;
+      return {
+        playerName: form.playerName || '',
+        email: form.email || '',
+        buddy: form.buddy || '',
+        crossedNet: form.crossedNet || '',
+        arc: form.arc || '',
+        speed: form.speed || '',
+        experiment: form.experiment || '',
+        feedbackKey: `${form.crossedNet}_${form.arc}_${form.speed}`,
+        savedAt: new Date().toISOString(),
+        title: feedback.title,
+        meaning: feedback.meaning,
+        experimentText: feedback.experiment,
+        goal: feedback.goal,
+        arcText: feedback.arc,
+        forceText: feedback.force
+      };
+    }
+
+    function getTryData(n) {
+      return form.tries[n-1];
+    }
+
+    function loadTry(n) {
+      const data = getTryData(n);
+      form.currentTry = n;
+      if (data) {
+        form.playerName = data.playerName || '';
+        form.email = data.email || '';
+        form.buddy = data.buddy || '';
+        form.crossedNet = data.crossedNet || '';
+        form.arc = data.arc || '';
+        form.speed = data.speed || '';
+        form.experiment = data.experiment || '';
+      } else {
+        form.crossedNet = '';
+        form.arc = '';
+        form.speed = '';
+        form.experiment = '';
+      }
+      playerNameInput.value = form.playerName;
+      emailInput.value = form.email;
+      buddyInput.value = form.buddy;
+      form.sent = false;
+      render();
+    }
+
+    function saveCurrentTry() {
+      const data = cloneCurrentState();
+      if (!data) return;
+      form.tries[form.currentTry - 1] = data;
+      form.selectedTryForCapture = form.currentTry;
+      form.submissionMessage = `Saved Try ${form.currentTry}.`;
+      form.submitted = false;
+      if (form.currentTry < 3) {
+        form.currentTry += 1;
+        form.crossedNet = '';
+        form.arc = '';
+        form.speed = '';
+        form.experiment = '';
+      }
+      render();
+    }
+
+    function buildTrySummary(data) {
+      if (!data) return 'No try saved yet.';
+      const crossText = data.crossedNet === 'yes' ? 'crossed' : 'did not cross';
+      const focus = data.experiment ? experimentLabels[data.experiment] : '-';
+      return `${crossText} • ${data.arcText} • ${data.forceText} • ${focus}`;
+    }
+
+    function buildEmailBodyAll() {
+      const saved = form.tries.map((t, i) => ({...t, tryNo: i+1})).filter(Boolean);
+      const lines = [
+        `Player: ${form.playerName || '-'}`,
+        `Buddy/Coach: ${form.buddy || '-'}`,
+        ''
+      ];
+      if (!saved.length) {
+        const feedback = getFeedback();
+        return feedback ? buildEmailBody(feedback) : '';
+      }
+      saved.forEach(t => {
+        lines.push(`Try ${t.tryNo}`);
+        lines.push(`- Crossed net: ${t.crossedNet === 'yes' ? 'Yes' : 'No'}`);
+        lines.push(`- Ball path: ${t.arcText}`);
+        lines.push(`- Ball speed: ${t.forceText}`);
+        lines.push(`- Focus: ${t.experiment ? experimentLabels[t.experiment] : '-'}`);
+        lines.push(`- What: ${t.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${t.arcText} and the serve speed was ${t.forceText}.`);
+        lines.push(`- So what: ${t.meaning}`);
+        lines.push(`- Now what: ${t.experimentText}`);
+        lines.push(`- Next goal: ${t.goal}`);
+        lines.push('');
+      });
+      lines.push(`Chosen try for screenshot: Try ${form.selectedTryForCapture}`);
+      return lines.join('\n');
+    }
+
+    function renderTryStrip() {
+      const container = document.getElementById('tryStrip');
+      container.innerHTML = '';
+      [1,2,3].forEach(n => {
+        const data = getTryData(n);
+        const div = document.createElement('div');
+        div.className = `try-card ${form.currentTry === n ? 'active' : ''} ${data ? 'saved' : ''}`;
+        div.innerHTML = `
+          <div class="try-top">
+            <strong>Try ${n}</strong>
+            <span class="pill">${data ? 'Saved' : form.currentTry === n ? 'Current' : 'Empty'}</span>
+          </div>
+          <div class="try-summary">${buildTrySummary(data)}</div>
+          <div class="tiny-actions">
+            <button type="button" class="tiny-btn ${form.currentTry===n ? 'primary-mini' : ''}" data-load="${n}">${data ? 'View / edit' : 'Use this try'}</button>
+            ${data ? `<button type="button" class="tiny-btn" data-pick="${n}">${form.selectedTryForCapture===n ? 'Chosen for screenshot' : 'Choose image'}</button>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      container.querySelectorAll('[data-load]').forEach(btn => btn.addEventListener('click', () => loadTry(Number(btn.dataset.load))));
+      container.querySelectorAll('[data-pick]').forEach(btn => btn.addEventListener('click', () => { form.selectedTryForCapture = Number(btn.dataset.pick); render(); }));
+    }
 
 
     function getTodayString() {
@@ -535,10 +740,10 @@ What happened:
 - Ball speed: ${feedback.force}
 
 So what:
-${feedback.meaning}
+${preview.meaning}
 
 Now what:
-${feedback.experiment}
+${preview.experimentText}
 
 My focus:
 ${form.experiment ? experimentLabels[form.experiment] + (form.experiment === 'height' ? ' — get enough lift to cross the net' : form.experiment === 'power' ? ' — make the ball travel faster' : form.experiment === 'contact' ? ' — hit the ball more cleanly' : ' — place the ball to a target area') : '-'}
@@ -547,7 +752,7 @@ Reflection:
 ${form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?'}
 
 Next goal:
-${feedback.goal}`;
+${preview.goal}`;
     }
 
     function buildPayload(screenshotDataUrl = '') {
@@ -562,7 +767,7 @@ ${feedback.goal}`;
         observerName: form.buddy || '',
         observerEmail: '',
         relationship: 'peer',
-        attemptNo: 1,
+        attemptNo: form.selectedTryForCapture || form.currentTry || 1,
         performanceTitle: feedback ? feedback.title : '',
         ballCrossedNet: form.crossedNet || '',
         arcQuality: form.arc || '',
@@ -580,10 +785,10 @@ ${feedback.goal}`;
         lessonNumber: '',
         term: '',
         week: '',
-        sourceApp: 'volleyball-serving-check-v1',
+        sourceApp: 'volleyball-serving-check-v2-3tries',
         deviceType: getDeviceType(),
         screenshotDataUrl: screenshotDataUrl,
-        notes: ''
+        notes: `Saved tries: ${form.tries.map((t,i)=>t ? `Try ${i+1}` : '').filter(Boolean).join(', ')}`
       };
     }
 
@@ -642,7 +847,7 @@ ${feedback.goal}`;
       const feedback = getFeedback();
       if (!feedback || !form.email) return;
       const subject = encodeURIComponent(`${form.playerName || 'Your'} Volleyball Serving Check`);
-      const body = encodeURIComponent(buildEmailBody(feedback));
+      const body = encodeURIComponent(buildEmailBodyAll());
       window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
       form.sent = true;
       form.lastEmailPromptedAt = new Date().toISOString();
@@ -655,6 +860,7 @@ ${feedback.goal}`;
       makeButtons('arcBtns', arcOptions, 'arc');
       makeButtons('speedBtns', speedOptions, 'speed');
       makeButtons('experimentBtns', experimentOptions, 'experiment', true);
+      renderTryStrip();
 
       const feedback = getFeedback();
       if (!feedback) {
@@ -662,32 +868,49 @@ ${feedback.goal}`;
         return;
       }
 
-      const force = getForceLine();
-      const playerLine = `${form.playerName || 'Player'}${form.buddy ? ' • observed by ' + form.buddy : ''}`;
-      const myExperiment = form.experiment
+      const previewTry = getTryData(form.selectedTryForCapture);
+      const preview = previewTry || {
+        playerName: form.playerName,
+        buddy: form.buddy,
+        crossedNet: form.crossedNet,
+        arc: form.arc,
+        speed: form.speed,
+        experiment: form.experiment,
+        arcText: feedback.arc,
+        forceText: feedback.force,
+        meaning: feedback.meaning,
+        experimentText: feedback.experiment,
+        goal: feedback.goal,
+        title: feedback.title,
+      };
+      const force = preview.speed === 'slow' ? { x2: 95, arrow: '95,145 84,139 84,151' } : preview.speed === 'medium' ? { x2: 125, arrow: '125,145 114,139 114,151' } : { x2: 160, arrow: '160,145 149,139 149,151' };
+      const playerLine = `${preview.playerName || 'Player'}${preview.buddy ? ' • observed by ' + preview.buddy : ''}`;
+      const myExperiment = preview.experiment
         ? {
             height: 'I will test how to give the serve more lift so it can clear the net.',
             power: 'I will test how to make the ball travel faster after contact.',
             contact: 'I will test how to meet the ball more cleanly with my hand.',
             control: 'I will test how to place the ball closer to my target area.',
-          }[form.experiment]
+          }[preview.experiment]
         : 'Choose one improvement focus.';
-      const reflection = form.experiment
-        ? reflectionPrompts[form.experiment]
+      const reflection = preview.experiment
+        ? reflectionPrompts[preview.experiment]
         : 'What will you change on your next serve?';
+      const visualPath = preview.arc === 'low' ? '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />' : preview.arc === 'good' ? '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />' : '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
 
       feedbackArea.innerHTML = `
         <div id="assessmentCapture">
         <div class="feedback-top">
-          <div style="font-size:22px;font-weight:700;">${feedback.title}</div>
+          <div style="font-size:22px;font-weight:700;">${preview.title}</div>
           <div class="small muted" style="margin-top:4px;">${playerLine}</div>
           <div class="mini-card">
             <div class="section-title" style="margin-bottom:10px;">Simple visual</div>
+            <div class="small muted" style="margin-bottom:10px;">Showing Try ${form.selectedTryForCapture}</div>
             <svg viewBox="0 0 320 160" aria-label="Serve path visual">
               <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" stroke-width="3" />
               <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" stroke-width="4" />
               <line x1="140" y1="60" x2="180" y2="60" stroke="#0f172a" stroke-width="3" />
-              ${getVisualPath()}
+              ${visualPath}
               <circle cx="40" cy="115" r="6" fill="#0f172a" />
               <line x1="40" y1="145" x2="${force.x2}" y2="145" stroke="#334155" stroke-width="6" stroke-linecap="round" />
               <polygon points="${force.arrow}" fill="#334155"></polygon>
@@ -699,15 +922,15 @@ ${feedback.goal}`;
         <div class="feedback-blocks">
           <div class="feedback-block">
             <h3>What</h3>
-            <p>${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was <strong>${feedback.arc}</strong> and the serve speed was <strong>${feedback.force}</strong>.</p>
+            <p>${preview.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was <strong>${preview.arcText}</strong> and the serve speed was <strong>${preview.forceText}</strong>.</p>
           </div>
           <div class="feedback-block">
             <h3>So what</h3>
-            <p>${feedback.meaning}</p>
+            <p>${preview.meaning}</p>
           </div>
           <div class="feedback-block">
             <h3>Now what</h3>
-            <p>${feedback.experiment}</p>
+            <p>${preview.experimentText}</p>
           </div>
           <div class="feedback-block">
             <h3>My focus</h3>
@@ -719,21 +942,23 @@ ${feedback.goal}`;
           </div>
           <div class="feedback-block">
             <h3>Next goal</h3>
-            <p>${feedback.goal}</p>
+            <p>${preview.goal}</p>
           </div>
         </div>
         </div>
 
         <div class="actions">
+          <button class="secondary" id="saveTryBtn">Save Try ${form.currentTry}</button>
           <button class="secondary" id="jpegBtn">Download JPEG</button>
           <button class="primary" id="submitBtn">Submit Feedback</button>
           <button class="primary" id="emailBtn" ${form.email ? '' : 'disabled'}>Open Email Draft</button>
-          <button class="secondary" id="resetBtn">Reset</button>
+          <button class="secondary" id="resetBtn">Reset All</button>
           ${form.submissionMessage ? `<div class="${form.submitted ? 'success' : 'warning'}">${form.submissionMessage}${form.lastSubmissionId ? ` • ID: ${form.lastSubmissionId}` : ''}</div>` : ''}
           ${form.sent ? '<div class="notice">Your email app has been opened with the feedback draft.</div>' : ''}
         </div>
       `;
 
+      document.getElementById('saveTryBtn').addEventListener('click', saveCurrentTry);
       document.getElementById('jpegBtn').addEventListener('click', handleDownloadJPEG);
       document.getElementById('submitBtn').addEventListener('click', handleSubmit);
       document.getElementById('emailBtn').addEventListener('click', handleEmail);
@@ -755,6 +980,9 @@ ${feedback.goal}`;
       form.openedDraftAfterSubmit = false;
       form.lastEmailPromptedAt = '';
       form.submitPending = false;
+      form.currentTry = 1;
+      form.selectedTryForCapture = 1;
+      form.tries = [null, null, null];
       playerNameInput.value = '';
       emailInput.value = '';
       buddyInput.value = '';
