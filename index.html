@@ -223,16 +223,29 @@ async function handleDownloadJPEG(){
   link.download=`${safeName}_volleyball_serving_check.jpg`;
   link.click();
 }
-function submitViaHiddenForm(payload){
-  let iframe=document.getElementById('submitFrame');
-  if(!iframe){ iframe=document.createElement('iframe'); iframe.id='submitFrame'; iframe.name='submitFrame'; iframe.style.display='none'; document.body.appendChild(iframe); }
+function submitViaFormPost(payload){
   const oldForm=document.getElementById('hiddenSubmitForm'); if(oldForm) oldForm.remove();
   const formEl=document.createElement('form');
-  formEl.id='hiddenSubmitForm'; formEl.method='POST'; formEl.action=APPS_SCRIPT_URL; formEl.target='submitFrame'; formEl.style.display='none';
-  const input=document.createElement('input'); input.type='hidden'; input.name='payload'; input.value=JSON.stringify(payload); formEl.appendChild(input);
+  formEl.id='hiddenSubmitForm';
+  formEl.method='POST';
+  formEl.action=APPS_SCRIPT_URL;
+  formEl.target='_blank';
+  formEl.style.display='none';
+
+  const input=document.createElement('input');
+  input.type='hidden';
+  input.name='payload';
+  input.value=JSON.stringify(payload);
+  formEl.appendChild(input);
+
   document.body.appendChild(formEl);
-  iframe.onload=()=>{ if(!form.submitPending) return; form.submitPending=false; form.submitted=true; form.lastSubmissionId=payload.clientSubmissionId||''; form.submissionMessage='Feedback submitted successfully.'; render(); };
   formEl.submit();
+
+  form.submitPending=false;
+  form.submitted=true;
+  form.lastSubmissionId=payload.clientSubmissionId||'';
+  form.submissionMessage='Submission opened in a new tab and sent to Apps Script. Check the Responses sheet.';
+  render();
 }
 async function handleSubmit(){
   const payload=buildPayloadData();
@@ -240,7 +253,7 @@ async function handleSubmit(){
   if(!form.playerName || !form.email){ alert('Please enter player name and email before submitting.'); return; }
   try{
     form.submitPending=true; form.submitted=false; form.submissionMessage='Submitting feedback...'; form.lastSubmissionId=''; render();
-    submitViaHiddenForm(payload);
+    submitViaFormPost(payload);
   }catch(error){
     form.submitPending=false; form.submitted=false; form.submissionMessage=error.message || 'Submission error.'; render();
   }
