@@ -5,991 +5,328 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Volleyball Serving Check</title>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: #cbd5e1;
-      --soft: #e2e8f0;
-      --accent: #0f172a;
-      --accent-2: #334155;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .page {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-    @media (min-width: 980px) {
-      .grid { grid-template-columns: 1fr 1fr; }
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--soft);
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
-    }
-    .eyebrow {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      font-weight: 700;
-    }
-    h1, h2, h3, p { margin: 0; }
-    h1 { font-size: 34px; margin-top: 6px; }
-    h2 { font-size: 28px; margin-top: 6px; }
-    h3 { font-size: 15px; margin-bottom: 6px; }
-    .subtext {
-      margin-top: 10px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .stack { display: grid; gap: 18px; margin-top: 24px; }
-    .field label, .section-title {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #334155;
-    }
-    input {
-      width: 100%;
-      padding: 13px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      outline: none;
-      font-size: 15px;
-    }
-    input:focus {
-      border-color: #64748b;
-      box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
-    }
-    .two-col {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 680px) {
-      .two-col { grid-template-columns: 1fr 1fr; }
-    }
-    .btn-grid-2, .btn-grid-3, .btn-grid-exp {
-      display: grid;
-      gap: 10px;
-    }
-    .btn-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .btn-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .btn-grid-exp { grid-template-columns: 1fr; }
-    @media (min-width: 680px) {
-      .btn-grid-exp { grid-template-columns: 1fr 1fr; }
-    }
-    .choice-btn {
-      border: 1px solid var(--border);
-      background: white;
-      color: #334155;
-      border-radius: 16px;
-      padding: 14px 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.15s ease;
-      text-align: center;
-    }
-    .choice-btn:hover { border-color: #94a3b8; }
-    .choice-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-    .choice-btn.left { text-align: left; }
-    .empty {
-      min-height: 220px;
-      border: 1px dashed var(--border);
-      background: #f8fafc;
-      border-radius: 24px;
-      padding: 20px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-    }
-    .feedback-top {
-      background: #f8fafc;
-      border-radius: 24px;
-      padding: 18px;
-    }
-    .mini-card {
-      background: white;
-      border: 1px solid var(--soft);
-      border-radius: 18px;
-      padding: 14px;
-      margin-top: 14px;
-    }
-    .feedback-blocks {
-      display: grid;
-      gap: 16px;
-      margin-top: 18px;
-    }
-    .feedback-block p {
-      color: var(--muted);
-      line-height: 1.55;
-      margin-top: 4px;
-    }
-    .actions {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .primary {
-      border: 0;
-      background: var(--accent);
-      color: white;
-      padding: 13px 18px;
-      border-radius: 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .primary:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .secondary {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text);
-      padding: 13px 18px;
-      border-radius: 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .secondary:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .success {
-      background: #ecfdf5;
-      color: #166534;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-    }
-    .warning {
-      background: #fff7ed;
-      color: #9a3412;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-    }
-    .notice {
-      background: #f1f5f9;
-      color: #334155;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-    }
-    svg { width: 100%; height: auto; display: block; }
-    .muted { color: var(--muted); }
-    .small { font-size: 14px; }
-
-    .try-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .try-card {
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 18px;
-      padding: 12px;
-      min-height: 110px;
-    }
-    .try-card.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(15,23,42,0.08);
-    }
-    .try-card.saved {
-      background: #f8fafc;
-    }
-    .try-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .pill {
-      display: inline-block;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #e2e8f0;
-      color: #334155;
-      font-weight: 700;
-    }
-    .try-summary {
-      font-size: 13px;
-      line-height: 1.45;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .tiny-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .tiny-btn {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text);
-      padding: 8px 10px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .tiny-btn.primary-mini {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-    .helper-box {
-      background: #f8fafc;
-      color: #334155;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
+    :root{--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#475569;--border:#cbd5e1;--soft:#e2e8f0;--accent:#0f172a}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .page{max-width:1180px;margin:0 auto;padding:20px}.grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media (min-width:980px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border:1px solid var(--soft);border-radius:24px;padding:24px;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+    .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+    h1,h2,h3,p{margin:0} h1{font-size:34px;margin-top:6px} h2{font-size:28px;margin-top:6px} h3{font-size:15px;margin-bottom:6px}
+    .subtext{margin-top:10px;color:var(--muted);line-height:1.5}.stack{display:grid;gap:18px;margin-top:24px}
+    .field label,.section-title{display:block;margin-bottom:8px;font-size:14px;font-weight:700;color:#334155}
+    input{width:100%;padding:13px 14px;border-radius:16px;border:1px solid var(--border);outline:none;font-size:15px}
+    input:focus{border-color:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.12)}
+    .two-col{display:grid;gap:16px;grid-template-columns:1fr}@media(min-width:680px){.two-col{grid-template-columns:1fr 1fr}}
+    .btn-grid-2,.btn-grid-3,.btn-grid-exp{display:grid;gap:10px}.btn-grid-2{grid-template-columns:repeat(2,1fr)}.btn-grid-3{grid-template-columns:repeat(3,1fr)}.btn-grid-exp{grid-template-columns:1fr 1fr}
+    .choice-btn{border:1px solid var(--border);background:#fff;color:#334155;border-radius:16px;padding:14px 12px;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+    .choice-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .empty{min-height:220px;border:1px dashed var(--border);background:#f8fafc;border-radius:24px;padding:20px;color:var(--muted);display:flex;align-items:center}
+    .feedback-top{background:#f8fafc;border-radius:24px;padding:18px}.mini-card{background:#fff;border:1px solid var(--soft);border-radius:18px;padding:14px;margin-top:14px}
+    .feedback-blocks{display:grid;gap:16px;margin-top:18px}.feedback-block p{color:var(--muted);line-height:1.55;margin-top:4px}
+    .actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .primary{border:0;background:var(--accent);color:#fff;padding:13px 18px;border-radius:16px;font-weight:700;cursor:pointer}
+    .secondary{border:1px solid var(--border);background:#fff;color:var(--text);padding:13px 18px;border-radius:16px;font-weight:700;cursor:pointer}
+    .primary:disabled,.secondary:disabled{opacity:.45;cursor:not-allowed}
+    .success{background:#ecfdf5;color:#166534;padding:12px 14px;border-radius:16px;font-size:14px}
+    .warning{background:#fff7ed;color:#9a3412;padding:12px 14px;border-radius:16px;font-size:14px}
+    .notice{background:#f1f5f9;color:#334155;padding:12px 14px;border-radius:16px;font-size:14px}
+    svg{width:100%;height:auto;display:block}.muted{color:var(--muted)}.small{font-size:14px}
+    .helper-box{background:#f8fafc;color:#334155;padding:12px 14px;border-radius:16px;font-size:14px;margin-top:10px}
+    .try-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .try-card{border:1px solid var(--border);background:#fff;border-radius:18px;padding:12px;min-height:116px}
+    .try-card.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(15,23,42,.08)} .try-card.saved{background:#f8fafc}
+    .try-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .pill{display:inline-block;font-size:12px;padding:4px 8px;border-radius:999px;background:#e2e8f0;color:#334155;font-weight:700}
+    .try-summary{font-size:13px;line-height:1.45;color:var(--muted);margin-top:6px;min-height:38px}
+    .tiny-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.tiny-btn{border:1px solid var(--border);background:#fff;color:var(--text);padding:8px 10px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer}
+    .tiny-btn.primary-mini{background:var(--accent);color:#fff;border-color:var(--accent)}
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="grid">
-      <section class="card">
-        <div class="eyebrow">Volleyball</div>
-        <h1>Serving Check</h1>
-        <p class="subtext">Observe the serve, make sense of what happened, then choose one thing to work on next.</p>
-
-        <div class="helper-box">Use up to 3 tries. Save each try after feedback is shown, then compare the tries before downloading or emailing.</div>
-        <div class="try-strip" id="tryStrip"></div>
-
-        <div class="stack">
-          <div class="field">
-            <label for="playerName">Player Name</label>
-            <input id="playerName" placeholder="Enter player name" />
-          </div>
-
-          <div class="two-col">
-            <div class="field">
-              <label for="email">Email</label>
-              <input id="email" type="email" placeholder="student@email.com" />
-            </div>
-            <div class="field">
-              <label for="buddy">Buddy / Coach</label>
-              <input id="buddy" placeholder="Observer name" />
-            </div>
-          </div>
-
-          <div>
-            <div class="section-title">What happened?</div>
-            <div class="stack">
-              <div>
-                <div class="small muted" style="margin-bottom:8px;">Did the serve cross the net?</div>
-                <div class="btn-grid-2" id="crossedNetBtns"></div>
-              </div>
-              <div>
-                <div class="small muted" style="margin-bottom:8px;">What was the ball path?</div>
-                <div class="btn-grid-3" id="arcBtns"></div>
-              </div>
-              <div>
-                <div class="small muted" style="margin-bottom:8px;">How fast was the serve?</div>
-                <div class="btn-grid-3" id="speedBtns"></div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="section-title">What do you want to improve?</div>
-            <div class="small muted" style="margin-bottom:8px;">Height = cross the net • Power = ball speed • Contact = clean hit • Control = placement</div>
-            <div class="btn-grid-exp" id="experimentBtns"></div>
+<div class="page">
+  <div class="grid">
+    <section class="card">
+      <div class="eyebrow">Volleyball</div>
+      <h1>Serving Check</h1>
+      <p class="subtext">Observe the serve, make sense of what happened, then choose one thing to work on next.</p>
+      <div class="helper-box">Use up to 3 tries. Save each try after feedback is shown, then compare the tries before downloading or emailing.</div>
+      <div class="try-strip" id="tryStrip"></div>
+      <div class="stack">
+        <div class="field"><label for="playerName">Player Name</label><input id="playerName" placeholder="Enter player name" /></div>
+        <div class="two-col">
+          <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="student@email.com" /></div>
+          <div class="field"><label for="buddy">Buddy / Coach</label><input id="buddy" placeholder="Observer name" /></div>
+        </div>
+        <div>
+          <div class="section-title">What happened?</div>
+          <div class="stack">
+            <div><div class="small muted" style="margin-bottom:8px;">Did the serve cross the net?</div><div class="btn-grid-2" id="crossedNetBtns"></div></div>
+            <div><div class="small muted" style="margin-bottom:8px;">What was the ball path?</div><div class="btn-grid-3" id="arcBtns"></div></div>
+            <div><div class="small muted" style="margin-bottom:8px;">How fast was the serve?</div><div class="btn-grid-3" id="speedBtns"></div></div>
           </div>
         </div>
-      </section>
-
-      <section class="card">
-        <div class="eyebrow">Feedback Card</div>
-        <h2>What • So What • Now What</h2>
-        <div id="feedbackArea" style="margin-top:18px;"></div>
-      </section>
-    </div>
+        <div>
+          <div class="section-title">What do you want to improve?</div>
+          <div class="small muted" style="margin-bottom:8px;">Height = cross the net • Power = ball speed • Contact = clean hit • Control = placement</div>
+          <div class="btn-grid-exp" id="experimentBtns"></div>
+        </div>
+      </div>
+    </section>
+    <section class="card">
+      <div class="eyebrow">Feedback Card</div>
+      <h2>What • So What • Now What</h2>
+      <div id="feedbackArea" style="margin-top:18px;"></div>
+    </section>
   </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_yC-m13NVoU35uiE7SmoI3ubtzT7M2bFlcNLUhCDXZtGi4_X71HJlZ-J82hJnW9o1xg/exec";
+const outcomeFeedback = {
+  no_low_fast:{title:"Power is there — add more lift",meaning:"The serve has force, but the ball path is too flat to clear the net.",experiment:"Try getting more under the ball so the serve has enough lift to clear the net.",goal:"Try 3 serves with more lift while keeping the same power.",arc:"too low",force:"fast"},
+  no_low_medium:{title:"Lift needs adjusting",meaning:"The serve is not rising enough to clear the net.",experiment:"Try contacting slightly more under the ball so the serve rises more.",goal:"Try 3 serves that rise above the net.",arc:"too low",force:"medium"},
+  no_low_slow:{title:"More lift and force needed",meaning:"The serve is too flat and does not have enough force to travel well.",experiment:"Try getting more under the ball first, then see if a firmer hit adds speed.",goal:"Try 3 serves with a higher arc and stronger contact.",arc:"too low",force:"slow"},
+  yes_good_fast:{title:"Strong, effective serve",meaning:"This serve has a useful mix of height and power.",experiment:"Try to repeat the same clean contact and ball path again.",goal:"Try to repeat 3 similar serves in a row.",arc:"good arc",force:"fast"},
+  yes_good_medium:{title:"Balanced serve",meaning:"The serve has enough height to clear the net and enough force to travel well.",experiment:"Try to repeat the same height and speed again.",goal:"Try to repeat 3 serves with the same arc and speed.",arc:"good arc",force:"medium"},
+  yes_good_slow:{title:"Safe serve — add more pressure",meaning:"The serve clears the net well, but it may be too easy to return.",experiment:"Try to keep the same arc but make the ball travel faster.",goal:"Try 3 serves with the same arc but more speed.",arc:"good arc",force:"slow"},
+  yes_high_fast:{title:"Powerful but too high",meaning:"The serve clears the net, but the path rises more than needed.",experiment:"Try a slightly flatter contact so the ball still clears but does not loop too high.",goal:"Try 3 serves with a lower, more attacking arc.",arc:"too high",force:"fast"},
+  yes_high_medium:{title:"Safe but looping",meaning:"The serve is clearing the net, but the arc is higher than needed.",experiment:"Try a slightly more forward contact so the ball travels on a lower, safer path.",goal:"Try 3 serves with a lower but still safe path.",arc:"too high",force:"medium"},
+  yes_high_slow:{title:"Very safe — but easy to receive",meaning:"The serve goes over, but it is slow and rises too much.",experiment:"Try a firmer hit and cleaner contact so the ball travels faster.",goal:"Try 3 serves with a lower arc and a little more speed.",arc:"too high",force:"slow"},
+  no_high_fast:{title:"Power is there — timing or control needs work",meaning:"The serve has force, but the ball path is not controlled enough.",experiment:"Try cleaner contact and aim the serve to a chosen area.",goal:"Try 3 serves with the same power but a more controlled path.",arc:"too high",force:"fast"},
+  no_high_medium:{title:"Ball path needs control",meaning:"The serve is not finding a useful path over the net.",experiment:"Try cleaner contact and choose a target area before serving.",goal:"Try 3 serves with a more controlled arc.",arc:"too high",force:"medium"},
+  no_high_slow:{title:"Try a clearer striking action",meaning:"The serve lacks both clear shape and enough force.",experiment:"Try cleaner contact first, then aim at a simple target area.",goal:"Try 3 serves with stronger contact and a more consistent path.",arc:"too high",force:"slow"}
+};
+const reflectionPrompts = {
+  height:"What helped the ball rise enough to clear the net?",
+  power:"What made the ball travel faster this time?",
+  contact:"What helped you hit the ball more cleanly and solidly?",
+  control:"What helped the ball go closer to your target area?"
+};
+const experimentLabels = {height:"More height",power:"More power",contact:"Better contact",control:"More control"};
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_yC-m13NVoU35uiE7SmoI3ubtzT7M2bFlcNLUhCDXZtGi4_X71HJlZ-J82hJnW9o1xg/exec";
+const form = {playerName:"",email:"",buddy:"",crossedNet:"",arc:"",speed:"",experiment:"",sent:false,submitted:false,submissionMessage:"",lastSubmissionId:"",lastEmailPromptedAt:"",submitPending:false,currentTry:1,selectedTryForCapture:1,tries:[null,null,null]};
+const crossedNetOptions=[["yes","Yes"],["no","No"]], arcOptions=[["low","Too low"],["good","Good arc"],["high","Too high"]], speedOptions=[["slow","Slow"],["medium","Medium"],["fast","Fast"]], experimentOptions=Object.entries(experimentLabels);
 
-    const outcomeFeedback = {
-      no_low_fast: {
-        title: "Power is there — add more lift",
-        meaning: "The serve has force, but the ball path is too flat to clear the net.",
-        experiment: "Try getting more under the ball so the serve has enough lift to clear the net.",
-        goal: "Try 3 serves with more lift while keeping the same power.",
-        arc: "too low",
-        force: "fast",
-      },
-      no_low_medium: {
-        title: "Lift needs adjusting",
-        meaning: "The serve is not rising enough to clear the net.",
-        experiment: "Try contacting slightly more under the ball so the serve rises more.",
-        goal: "Try 3 serves that rise above the net.",
-        arc: "too low",
-        force: "medium",
-      },
-      no_low_slow: {
-        title: "More lift and force needed",
-        meaning: "The serve is too flat and does not have enough force to travel well.",
-        experiment: "Try getting more under the ball first, then see if a firmer hit adds speed.",
-        goal: "Try 3 serves with a higher arc and stronger contact.",
-        arc: "too low",
-        force: "slow",
-      },
-      yes_good_fast: {
-        title: "Strong, effective serve",
-        meaning: "This serve has a useful mix of height and power.",
-        experiment: "Try to repeat the same clean contact and ball path again.",
-        goal: "Try to repeat 3 similar serves in a row.",
-        arc: "good arc",
-        force: "fast",
-      },
-      yes_good_medium: {
-        title: "Balanced serve",
-        meaning: "The serve has enough height to clear the net and enough force to travel well.",
-        experiment: "Try to repeat the same height and speed again.",
-        goal: "Try to repeat 3 serves with the same arc and speed.",
-        arc: "good arc",
-        force: "medium",
-      },
-      yes_good_slow: {
-        title: "Safe serve — add more pressure",
-        meaning: "The serve clears the net well, but it may be too easy to return.",
-        experiment: "Try to keep the same arc but make the ball travel faster.",
-        goal: "Try 3 serves with the same arc but more speed.",
-        arc: "good arc",
-        force: "slow",
-      },
-      yes_high_fast: {
-        title: "Powerful but too high",
-        meaning: "The serve clears the net, but the path rises more than needed.",
-        experiment: "Try a slightly flatter contact so the ball still clears but does not loop too high.",
-        goal: "Try 3 serves with a lower, more attacking arc.",
-        arc: "too high",
-        force: "fast",
-      },
-      yes_high_medium: {
-        title: "Safe but looping",
-        meaning: "The serve is clearing the net, but the arc is higher than needed.",
-        experiment: "Try a slightly more forward contact so the ball travels on a lower, safer path.",
-        goal: "Try 3 serves with a lower but still safe path.",
-        arc: "too high",
-        force: "medium",
-      },
-      yes_high_slow: {
-        title: "Very safe — but easy to receive",
-        meaning: "The serve goes over, but it is slow and rises too much.",
-        experiment: "Try a firmer hit and cleaner contact so the ball travels faster.",
-        goal: "Try 3 serves with a lower arc and a little more speed.",
-        arc: "too high",
-        force: "slow",
-      },
-      no_high_fast: {
-        title: "Power is there — timing or control needs work",
-        meaning: "The serve has force, but the ball path is not controlled enough.",
-        experiment: "Try cleaner contact and aim the serve to a chosen area.",
-        goal: "Try 3 serves with the same power but a more controlled path.",
-        arc: "too high",
-        force: "fast",
-      },
-      no_high_medium: {
-        title: "Ball path needs control",
-        meaning: "The serve is not finding a useful path over the net.",
-        experiment: "Try cleaner contact and choose a target area before serving.",
-        goal: "Try 3 serves with a more controlled arc.",
-        arc: "too high",
-        force: "medium",
-      },
-      no_high_slow: {
-        title: "Try a clearer striking action",
-        meaning: "The serve lacks both clear shape and enough force.",
-        experiment: "Try cleaner contact first, then aim at a simple target area.",
-        goal: "Try 3 serves with stronger contact and a more consistent path.",
-        arc: "too high",
-        force: "slow",
-      },
-    };
+const playerNameInput=document.getElementById('playerName'), emailInput=document.getElementById('email'), buddyInput=document.getElementById('buddy'), feedbackArea=document.getElementById('feedbackArea');
 
-    const reflectionPrompts = {
-      height: "What helped the ball rise enough to clear the net?",
-      power: "What made the ball travel faster this time?",
-      contact: "What helped you hit the ball more cleanly and solidly?",
-      control: "What helped the ball go closer to your target area?",
-    };
+playerNameInput.addEventListener('input', e=>{form.playerName=e.target.value; render();});
+emailInput.addEventListener('input', e=>{form.email=e.target.value; form.sent=false; render();});
+buddyInput.addEventListener('input', e=>{form.buddy=e.target.value; render();});
 
-    const experimentLabels = {
-      height: "More height",
-      power: "More power",
-      contact: "Better contact",
-      control: "More control",
-    };
+function currentFeedback(){ if(!form.crossedNet||!form.arc||!form.speed) return null; return outcomeFeedback[`${form.crossedNet}_${form.arc}_${form.speed}`]||null; }
+function currentData(){ const fb=currentFeedback(); if(!fb) return null; return {playerName:form.playerName,email:form.email,buddy:form.buddy,crossedNet:form.crossedNet,arc:form.arc,speed:form.speed,experiment:form.experiment,title:fb.title,meaning:fb.meaning,experimentText:fb.experiment,goal:fb.goal,arcText:fb.arc,forceText:fb.force};}
+function getTryData(n){ return form.tries[n-1]; }
+function hasLiveSelection(){ return !!currentFeedback(); }
+function getPreviewData(){ return currentData() || getTryData(form.selectedTryForCapture); }
 
-    const form = {
-      playerName: "",
-      email: "",
-      buddy: "",
-      crossedNet: "",
-      arc: "",
-      speed: "",
-      experiment: "",
-      sent: false,
-      submitted: false,
-      submissionMessage: "",
-      lastSubmissionId: "",
-      openedDraftAfterSubmit: false,
-      lastEmailPromptedAt: "",
-      submitPending: false,
-      currentTry: 1,
-      selectedTryForCapture: 1,
-      tries: [null, null, null],
-    };
+function makeButtons(id, options, field){
+  const c=document.getElementById(id); c.innerHTML='';
+  options.forEach(([v,l])=>{ const b=document.createElement('button'); b.type='button'; b.className='choice-btn'+(form[field]===v?' active':''); b.textContent=l; b.addEventListener('click',()=>{form[field]=v; form.sent=false; render();}); c.appendChild(b);});
+}
+function buildTrySummary(data){
+  if(!data) return 'No try saved yet.';
+  const cross = data.crossedNet==='yes' ? 'crossed' : 'did not cross';
+  const focus = data.experiment ? experimentLabels[data.experiment] : '-';
+  return `${cross} • ${data.arcText} • ${data.forceText} • ${focus}`;
+}
+function renderTryStrip(){
+  const c=document.getElementById('tryStrip'); c.innerHTML='';
+  [1,2,3].forEach(n=>{
+    const data=getTryData(n), isCurrent=form.currentTry===n, isSelected=form.selectedTryForCapture===n;
+    const div=document.createElement('div');
+    div.className=`try-card ${isCurrent?'active':''} ${data?'saved':''}`;
+    div.innerHTML=`<div class="try-top"><strong>Try ${n}</strong><span class="pill">${data?'Saved':isCurrent?'Current':'Empty'}</span></div>
+      <div class="try-summary">${buildTrySummary(data)}</div>
+      <div class="tiny-actions">
+        <button type="button" class="tiny-btn ${isCurrent?'primary-mini':''}" data-load="${n}">${data?'View / edit':'Use this try'}</button>
+        ${data?`<button type="button" class="tiny-btn" data-pick="${n}">${isSelected?'Chosen for screenshot':'Choose image'}</button>`:''}
+      </div>`;
+    c.appendChild(div);
+  });
+  c.querySelectorAll('[data-load]').forEach(btn=>btn.addEventListener('click',()=>loadTry(Number(btn.dataset.load))));
+  c.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>{form.selectedTryForCapture=Number(btn.dataset.pick); render();}));
+}
+function loadTry(n){
+  form.currentTry=n;
+  const data=getTryData(n);
+  if(data){
+    form.playerName=data.playerName||''; form.email=data.email||''; form.buddy=data.buddy||'';
+    form.crossedNet=data.crossedNet||''; form.arc=data.arc||''; form.speed=data.speed||''; form.experiment=data.experiment||'';
+  } else {
+    form.crossedNet=''; form.arc=''; form.speed=''; form.experiment='';
+  }
+  playerNameInput.value=form.playerName; emailInput.value=form.email; buddyInput.value=form.buddy;
+  form.sent=false; render();
+}
+function saveCurrentTry(){
+  const data=currentData();
+  if(!data){ alert('Complete the try first before saving.'); return; }
+  form.tries[form.currentTry-1]={...data, savedAt:new Date().toISOString()};
+  form.selectedTryForCapture=form.currentTry;
+  form.submitted=false; form.submissionMessage=`Saved Try ${form.currentTry}.`;
+  if(form.currentTry<3){
+    form.currentTry += 1;
+    form.crossedNet=''; form.arc=''; form.speed=''; form.experiment='';
+  }
+  render();
+}
+function getWhatText(data){ return `${data.crossedNet==='yes'?'The serve crossed the net.':'The serve did not cross the net.'} The ball path was ${data.arcText} and the serve speed was ${data.forceText}.`; }
+function getMyFocus(exp){ return exp ? ({height:'I will test how to give the serve more lift so it can clear the net.', power:'I will test how to make the ball travel faster after contact.', contact:'I will test how to meet the ball more cleanly with my hand.', control:'I will test how to place the ball closer to my target area.'})[exp] : 'Choose one improvement focus.'; }
+function getVisualPath(arc){ if(arc==='low') return '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />'; if(arc==='good') return '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />'; return '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';}
+function getForceLine(speed){ if(speed==='slow') return {x2:95,arrow:'95,145 84,139 84,151'}; if(speed==='medium') return {x2:125,arrow:'125,145 114,139 114,151'}; return {x2:160,arrow:'160,145 149,139 149,151'}; }
 
-    const crossedNetOptions = [["yes", "Yes"], ["no", "No"]];
-    const arcOptions = [["low", "Too low"], ["good", "Good arc"], ["high", "Too high"]];
-    const speedOptions = [["slow", "Slow"], ["medium", "Medium"], ["fast", "Fast"]];
-    const experimentOptions = Object.entries(experimentLabels);
+function buildPayloadData(){
+  const source = getTryData(form.selectedTryForCapture) || currentData();
+  if(!source) return null;
+  const savedList = form.tries.map((t,i)=>t?`Try ${i+1}`:'').filter(Boolean).join(', ');
+  return {
+    clientSubmissionId: `${Date.now()}_${Math.floor(Math.random()*1000)}`,
+    lessonDate: new Date().toISOString().slice(0,10),
+    lessonUnit: 'Volleyball Serving Check',
+    className: '',
+    performerName: source.playerName || form.playerName || '',
+    performerEmail: source.email || form.email || '',
+    observerName: source.buddy || form.buddy || '',
+    observerEmail: '',
+    relationship: 'peer',
+    attemptNo: form.selectedTryForCapture || form.currentTry || 1,
+    performanceTitle: source.title || '',
+    ballCrossedNet: source.crossedNet || '',
+    arcQuality: source.arc || '',
+    serveSpeed: source.speed || '',
+    pressureLevel: ({slow:'low',medium:'medium',fast:'high'})[source.speed] || '',
+    whatText: getWhatText(source),
+    soWhatText: source.meaning || '',
+    nowWhatText: source.experimentText || '',
+    focusText: source.experiment ? experimentLabels[source.experiment] : '',
+    reflectionPrompt: source.experiment ? reflectionPrompts[source.experiment] : 'What will you change on your next serve?',
+    nextGoal: source.goal || '',
+    emailDraftOpened: form.sent,
+    studentEmailPromptedAt: form.lastEmailPromptedAt || '',
+    cycleTag: '',
+    lessonNumber: '',
+    term: '',
+    week: '',
+    sourceApp: 'volleyball-serving-check-v2-3tries',
+    deviceType: /Android/i.test(navigator.userAgent)?'android':/iPhone|iPad|iPod/i.test(navigator.userAgent)?'ios':/Windows/i.test(navigator.userAgent)?'windows':/Macintosh|Mac OS X/i.test(navigator.userAgent)?'mac':'other',
+    screenshotDataUrl: '',
+    notes: `Saved tries: ${savedList}`
+  };
+}
+async function handleDownloadJPEG(){
+  const element=document.getElementById('assessmentCapture');
+  if(!element || typeof html2canvas==='undefined'){ alert('JPEG download is not available right now.'); return; }
+  const canvas=await html2canvas(element,{backgroundColor:'#ffffff',scale:2});
+  const link=document.createElement('a');
+  const safeName=(form.playerName||'player').replace(/[^a-z0-9]+/gi,'_');
+  link.href=canvas.toDataURL('image/jpeg',0.95);
+  link.download=`${safeName}_volleyball_serving_check.jpg`;
+  link.click();
+}
+function submitViaHiddenForm(payload){
+  let iframe=document.getElementById('submitFrame');
+  if(!iframe){ iframe=document.createElement('iframe'); iframe.id='submitFrame'; iframe.name='submitFrame'; iframe.style.display='none'; document.body.appendChild(iframe); }
+  const oldForm=document.getElementById('hiddenSubmitForm'); if(oldForm) oldForm.remove();
+  const formEl=document.createElement('form');
+  formEl.id='hiddenSubmitForm'; formEl.method='POST'; formEl.action=APPS_SCRIPT_URL; formEl.target='submitFrame'; formEl.style.display='none';
+  const input=document.createElement('input'); input.type='hidden'; input.name='payload'; input.value=JSON.stringify(payload); formEl.appendChild(input);
+  document.body.appendChild(formEl);
+  iframe.onload=()=>{ if(!form.submitPending) return; form.submitPending=false; form.submitted=true; form.lastSubmissionId=payload.clientSubmissionId||''; form.submissionMessage='Feedback submitted successfully.'; render(); };
+  formEl.submit();
+}
+async function handleSubmit(){
+  const payload=buildPayloadData();
+  if(!payload){ alert('Complete a try or choose a saved try before submitting.'); return; }
+  if(!form.playerName || !form.email){ alert('Please enter player name and email before submitting.'); return; }
+  try{
+    form.submitPending=true; form.submitted=false; form.submissionMessage='Submitting feedback...'; form.lastSubmissionId=''; render();
+    submitViaHiddenForm(payload);
+  }catch(error){
+    form.submitPending=false; form.submitted=false; form.submissionMessage=error.message || 'Submission error.'; render();
+  }
+}
+function buildEmailBodyAll(){
+  const saved=form.tries.map((t,i)=>t?{...t,tryNo:i+1}:null).filter(Boolean);
+  if(!saved.length){
+    const data=currentData(); if(!data) return '';
+    return `Player: ${data.playerName || '-'}\nBuddy/Coach: ${data.buddy || '-'}\n\nWhat happened:\n- Crossed net: ${data.crossedNet==='yes'?'Yes':'No'}\n- Ball path: ${data.arcText}\n- Ball speed: ${data.forceText}\n\nSo what:\n${data.meaning}\n\nNow what:\n${data.experimentText}\n\nMy focus:\n${data.experiment ? experimentLabels[data.experiment] : '-'}\n\nReflection:\n${data.experiment ? reflectionPrompts[data.experiment] : 'What will you change on your next serve?'}\n\nNext goal:\n${data.goal}`;
+  }
+  const lines=[`Player: ${form.playerName || '-'}`,`Buddy/Coach: ${form.buddy || '-'}`,''];
+  saved.forEach(t=>{ lines.push(`Try ${t.tryNo}`); lines.push(`- Crossed net: ${t.crossedNet==='yes'?'Yes':'No'}`); lines.push(`- Ball path: ${t.arcText}`); lines.push(`- Ball speed: ${t.forceText}`); lines.push(`- Focus: ${t.experiment ? experimentLabels[t.experiment] : '-'}`); lines.push(`- What: ${getWhatText(t)}`); lines.push(`- So what: ${t.meaning}`); lines.push(`- Now what: ${t.experimentText}`); lines.push(`- Next goal: ${t.goal}`); lines.push('');});
+  lines.push(`Chosen try for screenshot: Try ${form.selectedTryForCapture}`);
+  return lines.join('\n');
+}
+function handleEmail(){
+  const bodyText=buildEmailBodyAll(); if(!bodyText || !form.email) return;
+  const subject=encodeURIComponent(`${form.playerName || 'Your'} Volleyball Serving Check`);
+  const body=encodeURIComponent(bodyText);
+  window.location.href=`mailto:${form.email}?subject=${subject}&body=${body}`;
+  form.sent=true; form.lastEmailPromptedAt=new Date().toISOString(); render();
+}
+function resetForm(){
+  Object.assign(form,{playerName:"",email:"",buddy:"",crossedNet:"",arc:"",speed:"",experiment:"",sent:false,submitted:false,submissionMessage:"",lastSubmissionId:"",lastEmailPromptedAt:"",submitPending:false,currentTry:1,selectedTryForCapture:1,tries:[null,null,null]});
+  playerNameInput.value=''; emailInput.value=''; buddyInput.value=''; render();
+}
 
-    const playerNameInput = document.getElementById('playerName');
-    const emailInput = document.getElementById('email');
-    const buddyInput = document.getElementById('buddy');
-    const feedbackArea = document.getElementById('feedbackArea');
+function render(){
+  makeButtons('crossedNetBtns',crossedNetOptions,'crossedNet');
+  makeButtons('arcBtns',arcOptions,'arc');
+  makeButtons('speedBtns',speedOptions,'speed');
+  makeButtons('experimentBtns',experimentOptions,'experiment');
+  renderTryStrip();
 
-    playerNameInput.addEventListener('input', e => { form.playerName = e.target.value; render(); });
-    emailInput.addEventListener('input', e => { form.email = e.target.value; form.sent = false; render(); });
-    buddyInput.addEventListener('input', e => { form.buddy = e.target.value; render(); });
+  const preview=getPreviewData();
+  if(!preview){ feedbackArea.innerHTML='<div class="empty">Select the serve outcome to generate feedback.</div>'; return; }
 
+  const force=getForceLine(preview.speed), playerLine=`${preview.playerName || 'Player'}${preview.buddy ? ' • observed by ' + preview.buddy : ''}`;
+  const reflection=preview.experiment ? reflectionPrompts[preview.experiment] : 'What will you change on your next serve?';
+  const sourceLabel=currentData() ? `Live current try (Try ${form.currentTry})` : `Showing saved Try ${form.selectedTryForCapture}`;
 
-    function cloneCurrentState() {
-      const feedback = getFeedback();
-      if (!feedback) return null;
-      return {
-        playerName: form.playerName || '',
-        email: form.email || '',
-        buddy: form.buddy || '',
-        crossedNet: form.crossedNet || '',
-        arc: form.arc || '',
-        speed: form.speed || '',
-        experiment: form.experiment || '',
-        feedbackKey: `${form.crossedNet}_${form.arc}_${form.speed}`,
-        savedAt: new Date().toISOString(),
-        title: feedback.title,
-        meaning: feedback.meaning,
-        experimentText: feedback.experiment,
-        goal: feedback.goal,
-        arcText: feedback.arc,
-        forceText: feedback.force
-      };
-    }
-
-    function getTryData(n) {
-      return form.tries[n-1];
-    }
-
-    function loadTry(n) {
-      const data = getTryData(n);
-      form.currentTry = n;
-      if (data) {
-        form.playerName = data.playerName || '';
-        form.email = data.email || '';
-        form.buddy = data.buddy || '';
-        form.crossedNet = data.crossedNet || '';
-        form.arc = data.arc || '';
-        form.speed = data.speed || '';
-        form.experiment = data.experiment || '';
-      } else {
-        form.crossedNet = '';
-        form.arc = '';
-        form.speed = '';
-        form.experiment = '';
-      }
-      playerNameInput.value = form.playerName;
-      emailInput.value = form.email;
-      buddyInput.value = form.buddy;
-      form.sent = false;
-      render();
-    }
-
-    function saveCurrentTry() {
-      const data = cloneCurrentState();
-      if (!data) return;
-      form.tries[form.currentTry - 1] = data;
-      form.selectedTryForCapture = form.currentTry;
-      form.submissionMessage = `Saved Try ${form.currentTry}.`;
-      form.submitted = false;
-      if (form.currentTry < 3) {
-        form.currentTry += 1;
-        form.crossedNet = '';
-        form.arc = '';
-        form.speed = '';
-        form.experiment = '';
-      }
-      render();
-    }
-
-    function buildTrySummary(data) {
-      if (!data) return 'No try saved yet.';
-      const crossText = data.crossedNet === 'yes' ? 'crossed' : 'did not cross';
-      const focus = data.experiment ? experimentLabels[data.experiment] : '-';
-      return `${crossText} • ${data.arcText} • ${data.forceText} • ${focus}`;
-    }
-
-    function buildEmailBodyAll() {
-      const saved = form.tries.map((t, i) => ({...t, tryNo: i+1})).filter(Boolean);
-      const lines = [
-        `Player: ${form.playerName || '-'}`,
-        `Buddy/Coach: ${form.buddy || '-'}`,
-        ''
-      ];
-      if (!saved.length) {
-        const feedback = getFeedback();
-        return feedback ? buildEmailBody(feedback) : '';
-      }
-      saved.forEach(t => {
-        lines.push(`Try ${t.tryNo}`);
-        lines.push(`- Crossed net: ${t.crossedNet === 'yes' ? 'Yes' : 'No'}`);
-        lines.push(`- Ball path: ${t.arcText}`);
-        lines.push(`- Ball speed: ${t.forceText}`);
-        lines.push(`- Focus: ${t.experiment ? experimentLabels[t.experiment] : '-'}`);
-        lines.push(`- What: ${t.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${t.arcText} and the serve speed was ${t.forceText}.`);
-        lines.push(`- So what: ${t.meaning}`);
-        lines.push(`- Now what: ${t.experimentText}`);
-        lines.push(`- Next goal: ${t.goal}`);
-        lines.push('');
-      });
-      lines.push(`Chosen try for screenshot: Try ${form.selectedTryForCapture}`);
-      return lines.join('\n');
-    }
-
-    function renderTryStrip() {
-      const container = document.getElementById('tryStrip');
-      container.innerHTML = '';
-      [1,2,3].forEach(n => {
-        const data = getTryData(n);
-        const div = document.createElement('div');
-        div.className = `try-card ${form.currentTry === n ? 'active' : ''} ${data ? 'saved' : ''}`;
-        div.innerHTML = `
-          <div class="try-top">
-            <strong>Try ${n}</strong>
-            <span class="pill">${data ? 'Saved' : form.currentTry === n ? 'Current' : 'Empty'}</span>
-          </div>
-          <div class="try-summary">${buildTrySummary(data)}</div>
-          <div class="tiny-actions">
-            <button type="button" class="tiny-btn ${form.currentTry===n ? 'primary-mini' : ''}" data-load="${n}">${data ? 'View / edit' : 'Use this try'}</button>
-            ${data ? `<button type="button" class="tiny-btn" data-pick="${n}">${form.selectedTryForCapture===n ? 'Chosen for screenshot' : 'Choose image'}</button>` : ''}
-          </div>
-        `;
-        container.appendChild(div);
-      });
-      container.querySelectorAll('[data-load]').forEach(btn => btn.addEventListener('click', () => loadTry(Number(btn.dataset.load))));
-      container.querySelectorAll('[data-pick]').forEach(btn => btn.addEventListener('click', () => { form.selectedTryForCapture = Number(btn.dataset.pick); render(); }));
-    }
-
-
-    function getTodayString() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function getDeviceType() {
-      const ua = navigator.userAgent || '';
-      if (/CrOS/i.test(ua)) return 'chromebook';
-      if (/Android/i.test(ua)) return 'android';
-      if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
-      if (/Windows/i.test(ua)) return 'windows';
-      if (/Macintosh|Mac OS X/i.test(ua)) return 'mac';
-      return 'other';
-    }
-
-    function buildWhatText(feedback) {
-      return `${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${feedback.arc} and the serve speed was ${feedback.force}.`;
-    }
-
-    function getPressureLevel() {
-      return { slow: 'low', medium: 'medium', fast: 'high' }[form.speed] || '';
-    }
-
-    async function getScreenshotDataUrl() {
-      const element = document.getElementById('assessmentCapture');
-      if (!element || typeof html2canvas === 'undefined') return '';
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#ffffff',
-        scale: 2
-      });
-      return canvas.toDataURL('image/jpeg', 0.95);
-    }
-
-    function submitViaHiddenForm(payload) {
-      let iframe = document.getElementById('submitFrame');
-      if (!iframe) {
-        iframe = document.createElement('iframe');
-        iframe.id = 'submitFrame';
-        iframe.name = 'submitFrame';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-      }
-
-      const oldForm = document.getElementById('hiddenSubmitForm');
-      if (oldForm) oldForm.remove();
-
-      const formEl = document.createElement('form');
-      formEl.id = 'hiddenSubmitForm';
-      formEl.method = 'POST';
-      formEl.action = APPS_SCRIPT_URL;
-      formEl.target = 'submitFrame';
-      formEl.style.display = 'none';
-
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'payload';
-      input.value = JSON.stringify(payload);
-      formEl.appendChild(input);
-
-      document.body.appendChild(formEl);
-
-      iframe.onload = () => {
-        if (!form.submitPending) return;
-        form.submitPending = false;
-        form.submitted = true;
-        form.lastSubmissionId = payload.clientSubmissionId || '';
-        form.submissionMessage = 'Feedback submitted successfully.';
-        render();
-      };
-
-      formEl.submit();
-    }
-
-    function makeButtons(containerId, options, field, leftAlign = false) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      options.forEach(([value, label]) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'choice-btn' + (leftAlign ? ' left' : '') + (form[field] === value ? ' active' : '');
-        btn.textContent = label;
-        btn.addEventListener('click', () => {
-          form[field] = value;
-          form.sent = false;
-          render();
-        });
-        container.appendChild(btn);
-      });
-    }
-
-    function getFeedback() {
-      if (!form.crossedNet || !form.arc || !form.speed) return null;
-      return outcomeFeedback[`${form.crossedNet}_${form.arc}_${form.speed}`] || null;
-    }
-
-    function getVisualPath() {
-      if (form.arc === 'low') return '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
-      if (form.arc === 'good') return '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
-      if (form.arc === 'high') return '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
-      return '';
-    }
-
-    function getForceLine() {
-      if (form.speed === 'slow') return { x2: 95, arrow: '95,145 84,139 84,151' };
-      if (form.speed === 'medium') return { x2: 125, arrow: '125,145 114,139 114,151' };
-      return { x2: 160, arrow: '160,145 149,139 149,151' };
-    }
-
-    function buildEmailBody(feedback) {
-      return `Player: ${form.playerName || '-'}
-Buddy/Coach: ${form.buddy || '-'}
-
-What happened:
-- Crossed net: ${form.crossedNet === 'yes' ? 'Yes' : 'No'}
-- Ball path: ${feedback.arc}
-- Ball speed: ${feedback.force}
-
-So what:
-${preview.meaning}
-
-Now what:
-${preview.experimentText}
-
-My focus:
-${form.experiment ? experimentLabels[form.experiment] + (form.experiment === 'height' ? ' — get enough lift to cross the net' : form.experiment === 'power' ? ' — make the ball travel faster' : form.experiment === 'contact' ? ' — hit the ball more cleanly' : ' — place the ball to a target area') : '-'}
-
-Reflection:
-${form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?'}
-
-Next goal:
-${preview.goal}`;
-    }
-
-    function buildPayload(screenshotDataUrl = '') {
-      const feedback = getFeedback();
-      return {
-        clientSubmissionId: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-        lessonDate: getTodayString(),
-        lessonUnit: 'Volleyball Serving Check',
-        className: '',
-        performerName: form.playerName || '',
-        performerEmail: form.email || '',
-        observerName: form.buddy || '',
-        observerEmail: '',
-        relationship: 'peer',
-        attemptNo: form.selectedTryForCapture || form.currentTry || 1,
-        performanceTitle: feedback ? feedback.title : '',
-        ballCrossedNet: form.crossedNet || '',
-        arcQuality: form.arc || '',
-        serveSpeed: form.speed || '',
-        pressureLevel: getPressureLevel(),
-        whatText: feedback ? buildWhatText(feedback) : '',
-        soWhatText: feedback ? feedback.meaning : '',
-        nowWhatText: feedback ? feedback.experiment : '',
-        focusText: form.experiment ? experimentLabels[form.experiment] : '',
-        reflectionPrompt: form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?',
-        nextGoal: feedback ? feedback.goal : '',
-        emailDraftOpened: form.sent,
-        studentEmailPromptedAt: form.lastEmailPromptedAt || '',
-        cycleTag: '',
-        lessonNumber: '',
-        term: '',
-        week: '',
-        sourceApp: 'volleyball-serving-check-v2-3tries',
-        deviceType: getDeviceType(),
-        screenshotDataUrl: screenshotDataUrl,
-        notes: `Saved tries: ${form.tries.map((t,i)=>t ? `Try ${i+1}` : '').filter(Boolean).join(', ')}`
-      };
-    }
-
-    async function handleDownloadJPEG() {
-      const feedback = getFeedback();
-      if (!feedback) return;
-      const element = document.getElementById('assessmentCapture');
-      if (!element || typeof html2canvas === 'undefined') {
-        alert('JPEG download is not available right now.');
-        return;
-      }
-
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#ffffff',
-        scale: 2
-      });
-
-      const link = document.createElement('a');
-      const safeName = (form.playerName || 'player').replace(/[^a-z0-9]+/gi, '_');
-      link.href = canvas.toDataURL('image/jpeg', 0.95);
-      link.download = `${safeName}_volleyball_serving_check.jpg`;
-      link.click();
-    }
-
-    async function handleSubmit() {
-      const feedback = getFeedback();
-      if (!feedback) return;
-      if (!form.playerName || !form.email) {
-        alert('Please enter player name and email before submitting.');
-        return;
-      }
-      if (APPS_SCRIPT_URL === 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        alert('Please paste your Apps Script Web App URL into the HTML file first.');
-        return;
-      }
-
-      try {
-        form.submitPending = true;
-        form.submitted = false;
-        form.submissionMessage = 'Submitting feedback...';
-        form.lastSubmissionId = '';
-        render();
-
-        const screenshotDataUrl = await getScreenshotDataUrl();
-        const payload = buildPayload(screenshotDataUrl);
-        submitViaHiddenForm(payload);
-      } catch (error) {
-        form.submitPending = false;
-        form.submitted = false;
-        form.submissionMessage = error.message || 'Submission error.';
-        render();
-      }
-    }
-
-    function handleEmail() {
-      const feedback = getFeedback();
-      if (!feedback || !form.email) return;
-      const subject = encodeURIComponent(`${form.playerName || 'Your'} Volleyball Serving Check`);
-      const body = encodeURIComponent(buildEmailBodyAll());
-      window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
-      form.sent = true;
-      form.lastEmailPromptedAt = new Date().toISOString();
-      form.openedDraftAfterSubmit = form.submitted;
-      render();
-    }
-
-    function render() {
-      makeButtons('crossedNetBtns', crossedNetOptions, 'crossedNet');
-      makeButtons('arcBtns', arcOptions, 'arc');
-      makeButtons('speedBtns', speedOptions, 'speed');
-      makeButtons('experimentBtns', experimentOptions, 'experiment', true);
-      renderTryStrip();
-
-      const feedback = getFeedback();
-      if (!feedback) {
-        feedbackArea.innerHTML = '<div class="empty">Select the serve outcome to generate feedback.</div>';
-        return;
-      }
-
-      const previewTry = getTryData(form.selectedTryForCapture);
-      const preview = previewTry || {
-        playerName: form.playerName,
-        buddy: form.buddy,
-        crossedNet: form.crossedNet,
-        arc: form.arc,
-        speed: form.speed,
-        experiment: form.experiment,
-        arcText: feedback.arc,
-        forceText: feedback.force,
-        meaning: feedback.meaning,
-        experimentText: feedback.experiment,
-        goal: feedback.goal,
-        title: feedback.title,
-      };
-      const force = preview.speed === 'slow' ? { x2: 95, arrow: '95,145 84,139 84,151' } : preview.speed === 'medium' ? { x2: 125, arrow: '125,145 114,139 114,151' } : { x2: 160, arrow: '160,145 149,139 149,151' };
-      const playerLine = `${preview.playerName || 'Player'}${preview.buddy ? ' • observed by ' + preview.buddy : ''}`;
-      const myExperiment = preview.experiment
-        ? {
-            height: 'I will test how to give the serve more lift so it can clear the net.',
-            power: 'I will test how to make the ball travel faster after contact.',
-            contact: 'I will test how to meet the ball more cleanly with my hand.',
-            control: 'I will test how to place the ball closer to my target area.',
-          }[preview.experiment]
-        : 'Choose one improvement focus.';
-      const reflection = preview.experiment
-        ? reflectionPrompts[preview.experiment]
-        : 'What will you change on your next serve?';
-      const visualPath = preview.arc === 'low' ? '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />' : preview.arc === 'good' ? '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />' : '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
-
-      feedbackArea.innerHTML = `
-        <div id="assessmentCapture">
-        <div class="feedback-top">
-          <div style="font-size:22px;font-weight:700;">${preview.title}</div>
-          <div class="small muted" style="margin-top:4px;">${playerLine}</div>
-          <div class="mini-card">
-            <div class="section-title" style="margin-bottom:10px;">Simple visual</div>
-            <div class="small muted" style="margin-bottom:10px;">Showing Try ${form.selectedTryForCapture}</div>
-            <svg viewBox="0 0 320 160" aria-label="Serve path visual">
-              <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" stroke-width="3" />
-              <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" stroke-width="4" />
-              <line x1="140" y1="60" x2="180" y2="60" stroke="#0f172a" stroke-width="3" />
-              ${visualPath}
-              <circle cx="40" cy="115" r="6" fill="#0f172a" />
-              <line x1="40" y1="145" x2="${force.x2}" y2="145" stroke="#334155" stroke-width="6" stroke-linecap="round" />
-              <polygon points="${force.arrow}" fill="#334155"></polygon>
-              <text x="38" y="156" font-size="11" fill="#475569">force</text>
-            </svg>
-          </div>
+  feedbackArea.innerHTML = `
+    <div id="assessmentCapture">
+      <div class="feedback-top">
+        <div style="font-size:22px;font-weight:700;">${preview.title}</div>
+        <div class="small muted" style="margin-top:4px;">${playerLine}</div>
+        <div class="mini-card">
+          <div class="section-title" style="margin-bottom:10px;">Simple visual</div>
+          <div class="small muted" style="margin-bottom:10px;">${sourceLabel}</div>
+          <svg viewBox="0 0 320 160" aria-label="Serve path visual">
+            <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" stroke-width="3" />
+            <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" stroke-width="4" />
+            <line x1="140" y1="60" x2="180" y2="60" stroke="#0f172a" stroke-width="3" />
+            ${getVisualPath(preview.arc)}
+            <circle cx="40" cy="115" r="6" fill="#0f172a" />
+            <line x1="40" y1="145" x2="${force.x2}" y2="145" stroke="#334155" stroke-width="6" stroke-linecap="round" />
+            <polygon points="${force.arrow}" fill="#334155"></polygon>
+            <text x="38" y="156" font-size="11" fill="#475569">force</text>
+          </svg>
         </div>
-
-        <div class="feedback-blocks">
-          <div class="feedback-block">
-            <h3>What</h3>
-            <p>${preview.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was <strong>${preview.arcText}</strong> and the serve speed was <strong>${preview.forceText}</strong>.</p>
-          </div>
-          <div class="feedback-block">
-            <h3>So what</h3>
-            <p>${preview.meaning}</p>
-          </div>
-          <div class="feedback-block">
-            <h3>Now what</h3>
-            <p>${preview.experimentText}</p>
-          </div>
-          <div class="feedback-block">
-            <h3>My focus</h3>
-            <p>${myExperiment}</p>
-          </div>
-          <div class="feedback-block">
-            <h3>Reflection prompt</h3>
-            <p>${reflection}</p>
-          </div>
-          <div class="feedback-block">
-            <h3>Next goal</h3>
-            <p>${preview.goal}</p>
-          </div>
-        </div>
-        </div>
-
-        <div class="actions">
-          <button class="secondary" id="saveTryBtn">Save Try ${form.currentTry}</button>
-          <button class="secondary" id="jpegBtn">Download JPEG</button>
-          <button class="primary" id="submitBtn">Submit Feedback</button>
-          <button class="primary" id="emailBtn" ${form.email ? '' : 'disabled'}>Open Email Draft</button>
-          <button class="secondary" id="resetBtn">Reset All</button>
-          ${form.submissionMessage ? `<div class="${form.submitted ? 'success' : 'warning'}">${form.submissionMessage}${form.lastSubmissionId ? ` • ID: ${form.lastSubmissionId}` : ''}</div>` : ''}
-          ${form.sent ? '<div class="notice">Your email app has been opened with the feedback draft.</div>' : ''}
-        </div>
-      `;
-
-      document.getElementById('saveTryBtn').addEventListener('click', saveCurrentTry);
-      document.getElementById('jpegBtn').addEventListener('click', handleDownloadJPEG);
-      document.getElementById('submitBtn').addEventListener('click', handleSubmit);
-      document.getElementById('emailBtn').addEventListener('click', handleEmail);
-      document.getElementById('resetBtn').addEventListener('click', resetForm);
-    }
-
-    function resetForm() {
-      form.playerName = '';
-      form.email = '';
-      form.buddy = '';
-      form.crossedNet = '';
-      form.arc = '';
-      form.speed = '';
-      form.experiment = '';
-      form.sent = false;
-      form.submitted = false;
-      form.submissionMessage = '';
-      form.lastSubmissionId = '';
-      form.openedDraftAfterSubmit = false;
-      form.lastEmailPromptedAt = '';
-      form.submitPending = false;
-      form.currentTry = 1;
-      form.selectedTryForCapture = 1;
-      form.tries = [null, null, null];
-      playerNameInput.value = '';
-      emailInput.value = '';
-      buddyInput.value = '';
-      render();
-    }
-
-    render();
-  </script>
+      </div>
+      <div class="feedback-blocks">
+        <div class="feedback-block"><h3>What</h3><p>${getWhatText(preview).replace(preview.arcText, `<strong>${preview.arcText}</strong>`).replace(preview.forceText, `<strong>${preview.forceText}</strong>`)}</p></div>
+        <div class="feedback-block"><h3>So what</h3><p>${preview.meaning}</p></div>
+        <div class="feedback-block"><h3>Now what</h3><p>${preview.experimentText}</p></div>
+        <div class="feedback-block"><h3>My focus</h3><p>${getMyFocus(preview.experiment)}</p></div>
+        <div class="feedback-block"><h3>Reflection prompt</h3><p>${reflection}</p></div>
+        <div class="feedback-block"><h3>Next goal</h3><p>${preview.goal}</p></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="saveTryBtn">Save Try ${form.currentTry}</button>
+      <button class="secondary" id="jpegBtn">Download JPEG</button>
+      <button class="primary" id="submitBtn">Submit Feedback</button>
+      <button class="primary" id="emailBtn" ${form.email ? '' : 'disabled'}>Open Email Draft</button>
+      <button class="secondary" id="resetBtn">Reset All</button>
+      ${form.submissionMessage ? `<div class="${form.submitted ? 'success' : 'warning'}">${form.submissionMessage}${form.lastSubmissionId ? ` • ID: ${form.lastSubmissionId}` : ''}</div>` : ''}
+      ${form.sent ? '<div class="notice">Your email app has been opened with the feedback draft.</div>' : ''}
+    </div>`;
+  document.getElementById('saveTryBtn').addEventListener('click', saveCurrentTry);
+  document.getElementById('jpegBtn').addEventListener('click', handleDownloadJPEG);
+  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+  document.getElementById('emailBtn').addEventListener('click', handleEmail);
+  document.getElementById('resetBtn').addEventListener('click', resetForm);
+}
+render();
+</script>
 </body>
 </html>
