@@ -495,15 +495,394 @@
 
     function cloneCurrentState() {
       const feedback = getFeedback();
-      const livePreview = getLivePreview();
-      const savedPreview = getTryData(form.selectedTryForCapture);
-      const preview = livePreview || savedPreview;
+      if (!feedback) return null;
+      return {
+        playerName: form.playerName || '',
+        email: form.email || '',
+        buddy: form.buddy || '',
+        crossedNet: form.crossedNet || '',
+        arc: form.arc || '',
+        speed: form.speed || '',
+        experiment: form.experiment || '',
+        feedbackKey: `${form.crossedNet}_${form.arc}_${form.speed}`,
+        savedAt: new Date().toISOString(),
+        title: feedback.title,
+        meaning: feedback.meaning,
+        experimentText: feedback.experiment,
+        goal: feedback.goal,
+        arcText: feedback.arc,
+        forceText: feedback.force
+      };
+    }
 
-      if (!preview) {
+    function getTryData(n) {
+      return form.tries[n-1];
+    }
+
+    function loadTry(n) {
+      const data = getTryData(n);
+      form.currentTry = n;
+      if (data) {
+        form.playerName = data.playerName || '';
+        form.email = data.email || '';
+        form.buddy = data.buddy || '';
+        form.crossedNet = data.crossedNet || '';
+        form.arc = data.arc || '';
+        form.speed = data.speed || '';
+        form.experiment = data.experiment || '';
+      } else {
+        form.crossedNet = '';
+        form.arc = '';
+        form.speed = '';
+        form.experiment = '';
+      }
+      playerNameInput.value = form.playerName;
+      emailInput.value = form.email;
+      buddyInput.value = form.buddy;
+      form.sent = false;
+      render();
+    }
+
+    function saveCurrentTry() {
+      const data = cloneCurrentState();
+      if (!data) return;
+      form.tries[form.currentTry - 1] = data;
+      form.selectedTryForCapture = form.currentTry;
+      form.submissionMessage = `Saved Try ${form.currentTry}.`;
+      form.submitted = false;
+      if (form.currentTry < 3) {
+        form.currentTry += 1;
+        form.crossedNet = '';
+        form.arc = '';
+        form.speed = '';
+        form.experiment = '';
+      }
+      render();
+    }
+
+    function buildTrySummary(data) {
+      if (!data) return 'No try saved yet.';
+      const crossText = data.crossedNet === 'yes' ? 'crossed' : 'did not cross';
+      const focus = data.experiment ? experimentLabels[data.experiment] : '-';
+      return `${crossText} • ${data.arcText} • ${data.forceText} • ${focus}`;
+    }
+
+    function buildEmailBodyAll() {
+      const saved = form.tries.map((t, i) => ({...t, tryNo: i+1})).filter(Boolean);
+      const lines = [
+        `Player: ${form.playerName || '-'}`,
+        `Buddy/Coach: ${form.buddy || '-'}`,
+        ''
+      ];
+      if (!saved.length) {
+        const feedback = getFeedback();
+        return feedback ? buildEmailBody(feedback) : '';
+      }
+      saved.forEach(t => {
+        lines.push(`Try ${t.tryNo}`);
+        lines.push(`- Crossed net: ${t.crossedNet === 'yes' ? 'Yes' : 'No'}`);
+        lines.push(`- Ball path: ${t.arcText}`);
+        lines.push(`- Ball speed: ${t.forceText}`);
+        lines.push(`- Focus: ${t.experiment ? experimentLabels[t.experiment] : '-'}`);
+        lines.push(`- What: ${t.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${t.arcText} and the serve speed was ${t.forceText}.`);
+        lines.push(`- So what: ${t.meaning}`);
+        lines.push(`- Now what: ${t.experimentText}`);
+        lines.push(`- Next goal: ${t.goal}`);
+        lines.push('');
+      });
+      lines.push(`Chosen try for screenshot: Try ${form.selectedTryForCapture}`);
+      return lines.join('\n');
+    }
+
+    function renderTryStrip() {
+      const container = document.getElementById('tryStrip');
+      container.innerHTML = '';
+      [1,2,3].forEach(n => {
+        const data = getTryData(n);
+        const div = document.createElement('div');
+        div.className = `try-card ${form.currentTry === n ? 'active' : ''} ${data ? 'saved' : ''}`;
+        div.innerHTML = `
+          <div class="try-top">
+            <strong>Try ${n}</strong>
+            <span class="pill">${data ? 'Saved' : form.currentTry === n ? 'Current' : 'Empty'}</span>
+          </div>
+          <div class="try-summary">${buildTrySummary(data)}</div>
+          <div class="tiny-actions">
+            <button type="button" class="tiny-btn ${form.currentTry===n ? 'primary-mini' : ''}" data-load="${n}">${data ? 'View / edit' : 'Use this try'}</button>
+            ${data ? `<button type="button" class="tiny-btn" data-pick="${n}">${form.selectedTryForCapture===n ? 'Chosen for screenshot' : 'Choose image'}</button>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      container.querySelectorAll('[data-load]').forEach(btn => btn.addEventListener('click', () => loadTry(Number(btn.dataset.load))));
+      container.querySelectorAll('[data-pick]').forEach(btn => btn.addEventListener('click', () => { form.selectedTryForCapture = Number(btn.dataset.pick); render(); }));
+    }
+
+
+    function getTodayString() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getDeviceType() {
+      const ua = navigator.userAgent || '';
+      if (/CrOS/i.test(ua)) return 'chromebook';
+      if (/Android/i.test(ua)) return 'android';
+      if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+      if (/Windows/i.test(ua)) return 'windows';
+      if (/Macintosh|Mac OS X/i.test(ua)) return 'mac';
+      return 'other';
+    }
+
+    function buildWhatText(feedback) {
+      return `${form.crossedNet === 'yes' ? 'The serve crossed the net.' : 'The serve did not cross the net.'} The ball path was ${feedback.arc} and the serve speed was ${feedback.force}.`;
+    }
+
+    function getPressureLevel() {
+      return { slow: 'low', medium: 'medium', fast: 'high' }[form.speed] || '';
+    }
+
+    async function getScreenshotDataUrl() {
+      const element = document.getElementById('assessmentCapture');
+      if (!element || typeof html2canvas === 'undefined') return '';
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2
+      });
+      return canvas.toDataURL('image/jpeg', 0.95);
+    }
+
+    function submitViaHiddenForm(payload) {
+      let iframe = document.getElementById('submitFrame');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'submitFrame';
+        iframe.name = 'submitFrame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+
+      const oldForm = document.getElementById('hiddenSubmitForm');
+      if (oldForm) oldForm.remove();
+
+      const formEl = document.createElement('form');
+      formEl.id = 'hiddenSubmitForm';
+      formEl.method = 'POST';
+      formEl.action = APPS_SCRIPT_URL;
+      formEl.target = 'submitFrame';
+      formEl.style.display = 'none';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'payload';
+      input.value = JSON.stringify(payload);
+      formEl.appendChild(input);
+
+      document.body.appendChild(formEl);
+
+      iframe.onload = () => {
+        if (!form.submitPending) return;
+        form.submitPending = false;
+        form.submitted = true;
+        form.lastSubmissionId = payload.clientSubmissionId || '';
+        form.submissionMessage = 'Feedback submitted successfully.';
+        render();
+      };
+
+      formEl.submit();
+    }
+
+    function makeButtons(containerId, options, field, leftAlign = false) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      options.forEach(([value, label]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn' + (leftAlign ? ' left' : '') + (form[field] === value ? ' active' : '');
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+          form[field] = value;
+          form.sent = false;
+          render();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function getFeedback() {
+      if (!form.crossedNet || !form.arc || !form.speed) return null;
+      return outcomeFeedback[`${form.crossedNet}_${form.arc}_${form.speed}`] || null;
+    }
+
+    function getVisualPath() {
+      if (form.arc === 'low') return '<path d="M40 110 Q110 75 160 68 T280 50" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      if (form.arc === 'good') return '<path d="M40 115 Q120 20 200 70 T285 92" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      if (form.arc === 'high') return '<path d="M40 115 Q130 -10 210 45 T285 90" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" />';
+      return '';
+    }
+
+    function getForceLine() {
+      if (form.speed === 'slow') return { x2: 95, arrow: '95,145 84,139 84,151' };
+      if (form.speed === 'medium') return { x2: 125, arrow: '125,145 114,139 114,151' };
+      return { x2: 160, arrow: '160,145 149,139 149,151' };
+    }
+
+    function buildEmailBody(feedback) {
+      return `Player: ${form.playerName || '-'}
+Buddy/Coach: ${form.buddy || '-'}
+
+What happened:
+- Crossed net: ${form.crossedNet === 'yes' ? 'Yes' : 'No'}
+- Ball path: ${feedback.arc}
+- Ball speed: ${feedback.force}
+
+So what:
+${preview.meaning}
+
+Now what:
+${preview.experimentText}
+
+My focus:
+${form.experiment ? experimentLabels[form.experiment] + (form.experiment === 'height' ? ' — get enough lift to cross the net' : form.experiment === 'power' ? ' — make the ball travel faster' : form.experiment === 'contact' ? ' — hit the ball more cleanly' : ' — place the ball to a target area') : '-'}
+
+Reflection:
+${form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?'}
+
+Next goal:
+${preview.goal}`;
+    }
+
+    function buildPayload(screenshotDataUrl = '') {
+      const feedback = getFeedback();
+      return {
+        clientSubmissionId: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        lessonDate: getTodayString(),
+        lessonUnit: 'Volleyball Serving Check',
+        className: '',
+        performerName: form.playerName || '',
+        performerEmail: form.email || '',
+        observerName: form.buddy || '',
+        observerEmail: '',
+        relationship: 'peer',
+        attemptNo: form.selectedTryForCapture || form.currentTry || 1,
+        performanceTitle: feedback ? feedback.title : '',
+        ballCrossedNet: form.crossedNet || '',
+        arcQuality: form.arc || '',
+        serveSpeed: form.speed || '',
+        pressureLevel: getPressureLevel(),
+        whatText: feedback ? buildWhatText(feedback) : '',
+        soWhatText: feedback ? feedback.meaning : '',
+        nowWhatText: feedback ? feedback.experiment : '',
+        focusText: form.experiment ? experimentLabels[form.experiment] : '',
+        reflectionPrompt: form.experiment ? reflectionPrompts[form.experiment] : 'What will you change on your next serve?',
+        nextGoal: feedback ? feedback.goal : '',
+        emailDraftOpened: form.sent,
+        studentEmailPromptedAt: form.lastEmailPromptedAt || '',
+        cycleTag: '',
+        lessonNumber: '',
+        term: '',
+        week: '',
+        sourceApp: 'volleyball-serving-check-v2-3tries',
+        deviceType: getDeviceType(),
+        screenshotDataUrl: screenshotDataUrl,
+        notes: `Saved tries: ${form.tries.map((t,i)=>t ? `Try ${i+1}` : '').filter(Boolean).join(', ')}`
+      };
+    }
+
+    async function handleDownloadJPEG() {
+      const feedback = getFeedback();
+      if (!feedback) return;
+      const element = document.getElementById('assessmentCapture');
+      if (!element || typeof html2canvas === 'undefined') {
+        alert('JPEG download is not available right now.');
+        return;
+      }
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2
+      });
+
+      const link = document.createElement('a');
+      const safeName = (form.playerName || 'player').replace(/[^a-z0-9]+/gi, '_');
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.download = `${safeName}_volleyball_serving_check.jpg`;
+      link.click();
+    }
+
+    async function handleSubmit() {
+      const feedback = getFeedback();
+      if (!feedback) return;
+      if (!form.playerName || !form.email) {
+        alert('Please enter player name and email before submitting.');
+        return;
+      }
+      if (APPS_SCRIPT_URL === 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        alert('Please paste your Apps Script Web App URL into the HTML file first.');
+        return;
+      }
+
+      try {
+        form.submitPending = true;
+        form.submitted = false;
+        form.submissionMessage = 'Submitting feedback...';
+        form.lastSubmissionId = '';
+        render();
+
+        const screenshotDataUrl = await getScreenshotDataUrl();
+        const payload = buildPayload(screenshotDataUrl);
+        submitViaHiddenForm(payload);
+      } catch (error) {
+        form.submitPending = false;
+        form.submitted = false;
+        form.submissionMessage = error.message || 'Submission error.';
+        render();
+      }
+    }
+
+    function handleEmail() {
+      const feedback = getFeedback();
+      if (!feedback || !form.email) return;
+      const subject = encodeURIComponent(`${form.playerName || 'Your'} Volleyball Serving Check`);
+      const body = encodeURIComponent(buildEmailBodyAll());
+      window.location.href = `mailto:${form.email}?subject=${subject}&body=${body}`;
+      form.sent = true;
+      form.lastEmailPromptedAt = new Date().toISOString();
+      form.openedDraftAfterSubmit = form.submitted;
+      render();
+    }
+
+    function render() {
+      makeButtons('crossedNetBtns', crossedNetOptions, 'crossedNet');
+      makeButtons('arcBtns', arcOptions, 'arc');
+      makeButtons('speedBtns', speedOptions, 'speed');
+      makeButtons('experimentBtns', experimentOptions, 'experiment', true);
+      renderTryStrip();
+
+      const feedback = getFeedback();
+      if (!feedback) {
         feedbackArea.innerHTML = '<div class="empty">Select the serve outcome to generate feedback.</div>';
         return;
       }
 
+      const previewTry = getTryData(form.selectedTryForCapture);
+      const preview = previewTry || {
+        playerName: form.playerName,
+        buddy: form.buddy,
+        crossedNet: form.crossedNet,
+        arc: form.arc,
+        speed: form.speed,
+        experiment: form.experiment,
+        arcText: feedback.arc,
+        forceText: feedback.force,
+        meaning: feedback.meaning,
+        experimentText: feedback.experiment,
+        goal: feedback.goal,
+        title: feedback.title,
+      };
       const force = preview.speed === 'slow' ? { x2: 95, arrow: '95,145 84,139 84,151' } : preview.speed === 'medium' ? { x2: 125, arrow: '125,145 114,139 114,151' } : { x2: 160, arrow: '160,145 149,139 149,151' };
       const playerLine = `${preview.playerName || 'Player'}${preview.buddy ? ' • observed by ' + preview.buddy : ''}`;
       const myExperiment = preview.experiment
@@ -526,7 +905,7 @@
           <div class="small muted" style="margin-top:4px;">${playerLine}</div>
           <div class="mini-card">
             <div class="section-title" style="margin-bottom:10px;">Simple visual</div>
-            <div class="small muted" style="margin-bottom:10px;">${livePreview ? 'Showing current live try' : `Showing saved Try ${form.selectedTryForCapture}`}</div>
+            <div class="small muted" style="margin-bottom:10px;">Showing Try ${form.selectedTryForCapture}</div>
             <svg viewBox="0 0 320 160" aria-label="Serve path visual">
               <line x1="0" y1="130" x2="320" y2="130" stroke="#cbd5e1" stroke-width="3" />
               <line x1="160" y1="50" x2="160" y2="130" stroke="#0f172a" stroke-width="4" />
